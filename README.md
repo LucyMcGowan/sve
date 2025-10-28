@@ -54,13 +54,38 @@ est_sve(p0 = 0.10,
 #> 1      0.5 0.3360176 0.6639824  0.95   Wald
 ```
 
+## Using adjusted effect measures
+
+The `est_sve_adjusted()` function computes SVE from adjusted relative
+effect measures (e.g., hazard ratios from Cox models, relative risks
+from Poisson regression). Below is an example using a Cox proportional
+hazards model.
+
+``` r
+library(survival)
+
+fit <- coxph(Surv(time, status) ~ trt + celltype + age, data = veteran)
+hr <- exp(coef(fit)["trt"])
+var_log_hr <- vcov(fit)["trt", "trt"]
+
+est_sve_adjusted(theta = hr, var_log_theta = var_log_hr)
+#>       estimate      lower     upper level    method
+#> trt -0.1639033 -0.5159536 0.2355141  0.95 tanh-Wald
+```
+
 ## Methods overview
 
-Method overview The symmetric vaccine efficacy (SVE) is defined as
+The symmetric vaccine efficacy (SVE) is defined as
 
 $$\text{SVE}=\frac{2(p_0-p_1)}{p_0+p_1+|p_0-p_1|},$$
 
-where: \* $p_0$ = event proportion in the unvaccinated group  
-\* $p_1$ = event proportion in the vaccinated group
+where:
+
+- $p_0$ = event proportion in the unvaccinated group  
+- $p_1$ = event proportion in the vaccinated group
 
 This formulation ensures the estimator is bounded between -1 and 1.
+Equivalently, it can be written in terms of a relative effect measure,
+$\theta$ (such as a relative risk or hazard ratio):
+
+$$\text{SVE} = \frac{2(1 - \theta)}{1 + \theta + |1 - \theta|}.$$
