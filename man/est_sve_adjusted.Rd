@@ -75,9 +75,10 @@ est_sve_adjusted(theta = hrs, var_log_theta = var_log_hrs)
 # Using output directly from a Cox model
 \dontrun{
 library(survival)
-fit <- coxph(Surv(time, status) ~ trt + celltype + age, data = veteran)
-hr <- exp(coef(fit)["trt"])
-var_log_hr <- vcov(fit)["trt", "trt"]
+fit <- coxph(Surv(time, status) ~ vaccination + age + baseline_risk,
+             data = sim_trial_data)
+hr <- exp(coef(fit)["vaccination"])
+var_log_hr <- vcov(fit)["vaccination", "vaccination"]
 est_sve_adjusted(theta = hr, var_log_theta = var_log_hr)
 }
 

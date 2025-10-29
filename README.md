@@ -59,18 +59,20 @@ est_sve(p0 = 0.10,
 The `est_sve_adjusted()` function computes SVE from adjusted relative
 effect measures (e.g., hazard ratios from Cox models, relative risks
 from Poisson regression). Below is an example using a Cox proportional
-hazards model.
+hazards model and a simulated data set provided in this package
+(`sim_trial_data`).
 
 ``` r
 library(survival)
 
-fit <- coxph(Surv(time, status) ~ trt + celltype + age, data = veteran)
-hr <- exp(coef(fit)["trt"])
-var_log_hr <- vcov(fit)["trt", "trt"]
+fit <- coxph(Surv(time, status) ~ vaccination + age + baseline_risk, 
+             data = sim_trial_data)
+hr <- exp(coef(fit)["vaccination"])
+var_log_hr <- vcov(fit)["vaccination", "vaccination"]
 
 est_sve_adjusted(theta = hr, var_log_theta = var_log_hr)
-#>       estimate      lower     upper level    method
-#> trt -0.1639033 -0.5159536 0.2355141  0.95 tanh-Wald
+#>              estimate     lower     upper level    method
+#> vaccination 0.6776701 0.5923804 0.7479387  0.95 tanh-Wald
 ```
 
 ## Methods overview
