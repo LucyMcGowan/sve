@@ -89,7 +89,7 @@
 <div class="section level2">
 <h2 id="using-adjusted-effect-measures">Using adjusted effect measures<a class="anchor" aria-label="anchor" href="#using-adjusted-effect-measures"></a>
 </h2>
-<p>The <code><a href="reference/est_sve_adjusted.html">est_sve_adjusted()</a></code> function computes SVE from adjusted relative effect measures (e.g., hazard ratios from Cox models, relative risks from Poisson regression). Below is an example using a Cox proportional hazards model and a simulated data set provided in this package (<code>sim_trial_data</code>).</p>
+<p>The <code>est_sve_adjusted()</code> function computes SVE from adjusted relative effect measures (e.g., hazard ratios from Cox models, relative risks from Poisson regression). Below is an example using a Cox proportional hazards model and a simulated data set provided in this package (<code>sim_trial_data</code>).</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
 <span></span>
@@ -98,7 +98,7 @@
 <span><span class="va">hr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[</span><span class="st">"vaccination"</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">var_log_hr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[</span><span class="st">"vaccination"</span>, <span class="st">"vaccination"</span><span class="op">]</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/est_sve_adjusted.html">est_sve_adjusted</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="va">hr</span>, var_log_theta <span class="op">=</span> <span class="va">var_log_hr</span><span class="op">)</span></span>
+<span><span class="fu">est_sve_adjusted</span><span class="op">(</span>theta <span class="op">=</span> <span class="va">hr</span>, var_log_theta <span class="op">=</span> <span class="va">var_log_hr</span><span class="op">)</span></span>
 <span><span class="co">#&gt;              estimate     lower     upper level    method</span></span>
 <span><span class="co">#&gt; vaccination 0.6776701 0.5923804 0.7479387  0.95 tanh-Wald</span></span></code></pre></div>
 </div>
