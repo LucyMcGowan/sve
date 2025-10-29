@@ -1,12 +1,11 @@
-#' Symmetric Vaccine Efficacy from Adjusted Effect Measures
+#' Symmetric Vaccine Efficacy from Relative Effect Measures
 #'
 #' Computes the **symmetric vaccine efficacy (SVE)** and associated confidence
-#' intervals from an adjusted relative effect measure (e.g., relative risk,
+#' intervals from a relative effect measure (e.g., relative risk,
 #' hazard ratio, odds ratio) obtained from a regression model.
 #'
 #' @param theta Numeric. The relative effect measure (e.g., relative risk from
-#'   Poisson regression, hazard ratio from Cox model, odds ratio from logistic
-#'   regression). Can be a vector.
+#'   Poisson regression, hazard ratio from Cox model, etc.). Can be a vector.
 #' @param var_log_theta Numeric. The estimated variance of log(theta), typically
 #'   obtained from model output (e.g., `vcov(model)` or the squared standard
 #'   error). Must have the same length as `theta`.
@@ -46,12 +45,12 @@
 #' hr <- 0.7
 #' se_log_hr <- 0.15
 #' var_log_hr <- se_log_hr^2
-#' est_sve_adjusted(theta = hr, var_log_theta = var_log_hr)
+#' sve_from_effect(theta = hr, var_log_theta = var_log_hr)
 #'
 #' # Example with multiple effect estimates (e.g., from subgroups)
 #' hrs <- c(0.5, 0.8, 1.2)
 #' var_log_hrs <- c(0.04, 0.025, 0.036)
-#' est_sve_adjusted(theta = hrs, var_log_theta = var_log_hrs)
+#' sve_from_effect(theta = hrs, var_log_theta = var_log_hrs)
 #'
 #' # Using output directly from a Cox model
 #' \dontrun{
@@ -60,11 +59,11 @@
 #'              data = sim_trial_data)
 #' hr <- exp(coef(fit)["vaccination"])
 #' var_log_hr <- vcov(fit)["vaccination", "vaccination"]
-#' est_sve_adjusted(theta = hr, var_log_theta = var_log_hr)
+#' sve_from_effect(theta = hr, var_log_theta = var_log_hr)
 #' }
 #'
 #' @export
-est_sve_adjusted <- function(theta, var_log_theta, level = 0.95,
+sve_from_effect <- function(theta, var_log_theta, level = 0.95,
                              transform = TRUE, c = 1.96) {
   # Input validation
   if (any(theta <= 0)) {
@@ -81,9 +80,9 @@ est_sve_adjusted <- function(theta, var_log_theta, level = 0.95,
     )
   }
 
-  sve_val <- sve_adjusted(theta)
+  sve_val <- sve_effect(theta)
 
-  var_sve <- sve_var_adjusted(theta, var_log_theta, c = c)
+  var_sve <- sve_var_effect(theta, var_log_theta, c = c)
 
   if (transform) {
     z_val <- atanh(sve_val)
@@ -110,11 +109,11 @@ est_sve_adjusted <- function(theta, var_log_theta, level = 0.95,
   )
 }
 
-sve_adjusted <- function(theta) {
+sve_effect <- function(theta) {
   2 * (1 - theta) / (1 + theta + abs(1 - theta))
 }
 
-sve_var_adjusted <- function(theta, var_log_theta, c = 1.96) {
+sve_var_effect <- function(theta, var_log_theta, c = 1.96) {
   epsilon <- c * sqrt(var_log_theta)
 
   result <- numeric(length(theta))
