@@ -40,20 +40,30 @@ The core function, `est_sve()`, computes the symmetric vaccine efficacy and its 
 * $n_0=n_1=1,000$
 
 ```{r}
-est_sve(p0 = 0.10, 
-        p1 = 0.05, 
+est_sve(x0 = 10, 
+        x1 = 5, 
         n0 = 1000, 
         n1 = 1000)
 ```
 
-By default, confidence intervals are calculated on a transformed scale and then back-transformed in order to ensure that they remain between -1 and 1. If you do not want to use this transformation, you can set the option `transform = FALSE`:
+By default, confidence intervals are calculated on a transformed scale and then back-transformed in order to ensure that they remain between -1 and 1 (`method = "tanh-wald"`). If you do not want to use this transformation, you can set the option `method = "wald"`:
 
 ```{r}
-est_sve(p0 = 0.10, 
-        p1 = 0.05, 
+est_sve(x0 = 10, 
+        x1 = 5, 
         n0 = 1000, 
         n1 = 1000,
-        transform = FALSE)
+        method = "wald")
+```
+
+For small samples or a small number of events exact intervals may be preferred. For these, you can set `method = "exact"`:
+
+```{r}
+est_sve(x0 = 10, 
+        x1 = 5, 
+        n0 = 100, 
+        n1 = 100,
+        method = "exact")
 ```
 
 ## Using relative effect measures

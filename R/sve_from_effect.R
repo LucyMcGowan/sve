@@ -10,9 +10,15 @@
 #'   obtained from model output (e.g., `vcov(model)` or the squared standard
 #'   error). Must have the same length as `theta`.
 #' @param level Confidence level for the interval (default is 0.95).
-#' @param transform Logical. If `TRUE` (default), applies an archtanh-transform
-#'   before constructing confidence intervals and then transforms back to the
-#'   original scale (tanh-Wald). If `FALSE`, uses a standard Wald interval.
+#' @param method Method used to construct the confidence interval.
+#'
+#'   One of:
+#'
+#'   * `"tanh-wald"` (default): Applies a hyperbolic arctangent
+#'     transform before forming the Wald interval, then transforms back.
+#'     Improves coverage when the estimate is near +/- 1.
+#'
+#'   * `"wald"`: Standard Wald interval on the untransformed scale.
 #' @param c Numeric. Constant for determining epsilon in the smoothing
 #'   approximation (default is 1.96). The smoothing parameter is set to
 #'   `c * sqrt(var_log_theta)`.
@@ -64,8 +70,8 @@
 #'
 #' @export
 sve_from_effect <- function(theta, var_log_theta, level = 0.95,
-                             transform = TRUE, c = 1.96) {
-  # Input validation
+                             method = c("tanh-wald", "wald"), c = 1.96) {
+  method <- match.arg(method)
   if (any(theta <= 0)) {
     cli::cli_abort("{.arg theta} must be positive.")
   }
@@ -84,7 +90,7 @@ sve_from_effect <- function(theta, var_log_theta, level = 0.95,
 
   var_sve <- sve_var_effect(theta, var_log_theta, c = c)
 
-  if (transform) {
+  if (method == "tanh-wald") {
     z_val <- atanh(sve_val)
     var_z <- var_sve / (1 - sve_val^2)^2
     se_z <- sqrt(var_z)
@@ -105,7 +111,7 @@ sve_from_effect <- function(theta, var_log_theta, level = 0.95,
     lower = lower,
     upper = upper,
     level = level,
-    method = if (transform) "tanh-Wald" else "Wald"
+    method = if (method == "tanh-wald") "tanh-Wald" else "Wald"
   )
 }
 

@@ -4,7 +4,13 @@
 \alias{sve_from_effect}
 \title{Symmetric Vaccine Efficacy from Relative Effect Measures}
 \usage{
-sve_from_effect(theta, var_log_theta, level = 0.95, transform = TRUE, c = 1.96)
+sve_from_effect(
+  theta,
+  var_log_theta,
+  level = 0.95,
+  method = c("tanh-wald", "wald"),
+  c = 1.96
+)
 }
 \arguments{
 \item{theta}{Numeric. The relative effect measure (e.g., relative risk from
@@ -16,9 +22,15 @@ error). Must have the same length as \code{theta}.}
 
 \item{level}{Confidence level for the interval (default is 0.95).}
 
-\item{transform}{Logical. If \code{TRUE} (default), applies an archtanh-transform
-before constructing confidence intervals and then transforms back to the
-original scale (tanh-Wald). If \code{FALSE}, uses a standard Wald interval.}
+\item{method}{Method used to construct the confidence interval.
+
+One of:
+\itemize{
+\item \code{"tanh-wald"} (default): Applies a hyperbolic arctangent
+transform before forming the Wald interval, then transforms back.
+Improves coverage when the estimate is near +/- 1.
+\item \code{"wald"}: Standard Wald interval on the untransformed scale.
+}}
 
 \item{c}{Numeric. Constant for determining epsilon in the smoothing
 approximation (default is 1.96). The smoothing parameter is set to

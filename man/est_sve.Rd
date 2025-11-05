@@ -4,12 +4,12 @@
 \alias{est_sve}
 \title{Symmetric Vaccine Efficacy}
 \usage{
-est_sve(p0, p1, n0, n1, level = 0.95, transform = TRUE)
+est_sve(x0, x1, n0, n1, level = 0.95, method = c("tanh-wald", "wald", "exact"))
 }
 \arguments{
-\item{p0}{Numeric. Proportion (risk or incidence) in the unvaccinated group.}
+\item{x0}{Numeric. Number of events in the unvaccinated group.}
 
-\item{p1}{Numeric. Proportion (risk or incidence) in the vaccinated group.}
+\item{x1}{Numeric. Number of events in the vaccinated group.}
 
 \item{n0}{Integer. Sample size of the unvaccinated group.}
 
@@ -17,9 +17,18 @@ est_sve(p0, p1, n0, n1, level = 0.95, transform = TRUE)
 
 \item{level}{Confidence level for the interval (default is 0.95).}
 
-\item{transform}{Logical. If \code{TRUE} (default), applies a archtanh-transform
-before constructing confidence intervals and then transforms back to the
-original scale (tanh-Wald). If \code{FALSE}, uses a standard Wald interval.}
+\item{method}{Method used to construct the confidence interval.
+
+One of:
+\itemize{
+\item \code{"tanh-wald"} (default): Applies a hyperbolic arctangent
+transform before forming the Wald interval, then transforms back.
+Improves coverage when the estimate is near +/- 1.
+\item \code{"wald"}: Standard Wald interval on the untransformed scale.
+\item \code{"exact"}: Uses Clopper–Pearson binomial intervals for each group and
+propagates them through the SVE function. Conservative, but reliable
+for small samples or boundary cases.
+}}
 }
 \value{
 A data frame with the following columns:
@@ -28,8 +37,7 @@ A data frame with the following columns:
 \item{lower}{Lower bound of the confidence interval.}
 \item{upper}{Upper bound of the confidence interval.}
 \item{level}{Confidence interval level.}
-\item{method}{Indicates whether the interval is a tanh-Wald interval or
-standard Wald.}
+\item{method}{Indicates the method used: "tanh-Wald", "Wald", or "Exact".}
 }
 }
 \description{
@@ -40,7 +48,8 @@ unvaccinated groups.
 \details{
 By default, confidence intervals are constructed using the hyperbolic
 arctangent (tanh-Wald) for improved coverage, especially when efficacy values
-approach the bounds of ±1.
+approach the bounds of +/- 1. An exact method based on the Clopper-Pearson
+intervals is also available for small samples or boundary cases.
 
 The symmetric vaccine efficacy (SVE) is defined as:
 \deqn{
@@ -49,9 +58,11 @@ The symmetric vaccine efficacy (SVE) is defined as:
 }
 \examples{
 # Example: unvaccinated 10\% infection rate, vaccinated 5\%, equal group sizes
-est_sve(p0 = 0.10, p1 = 0.05, n0 = 1000, n1 = 1000)
+est_sve(x0 = 100, x1 = 50, n0 = 1000, n1 = 1000, method = "tanh-wald")
 
 # Without Fisher z-transform (uses Wald interval)
-est_sve(p0 = 0.10, p1 = 0.05, n0 = 1000, n1 = 1000, transform = FALSE)
+est_sve(x0 = 100, x1 = 50, n0 = 1000, n1 = 1000, method = "wald")
 
+# Exact method for small samples
+est_sve(x0 = 10, x1 = 5, n0 = 100, n1 = 100, method = "exact")
 }

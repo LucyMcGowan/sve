@@ -6,25 +6,34 @@
 #'
 #' By default, confidence intervals are constructed using the hyperbolic
 #' arctangent (tanh-Wald) for improved coverage, especially when efficacy values
-#' approach the bounds of ±1.
+#' approach the bounds of +/- 1. An exact method based on the Clopper-Pearson
+#' intervals is also available for small samples or boundary cases.
 #'
-#' @param p0 Numeric. Proportion (risk or incidence) in the unvaccinated group.
-#' @param p1 Numeric. Proportion (risk or incidence) in the vaccinated group.
+#' @param x0 Numeric. Number of events in the unvaccinated group.
+#' @param x1 Numeric. Number of events in the vaccinated group.
 #' @param n0 Integer. Sample size of the unvaccinated group.
 #' @param n1 Integer. Sample size of the vaccinated group.
 #' @param level Confidence level for the interval (default is 0.95).
-#' @param transform Logical. If `TRUE` (default), applies a archtanh-transform
-#'   before constructing confidence intervals and then transforms back to the
-#'   original scale (tanh-Wald). If `FALSE`, uses a standard Wald interval.
+#' @param method Method used to construct the confidence interval.
 #'
+#'   One of:
+#'
+#'   * `"tanh-wald"` (default): Applies a hyperbolic arctangent
+#'     transform before forming the Wald interval, then transforms back.
+#'     Improves coverage when the estimate is near +/- 1.
+#'
+#'   * `"wald"`: Standard Wald interval on the untransformed scale.
+#'
+#'   * `"exact"`: Uses Clopper–Pearson binomial intervals for each group and
+#'     propagates them through the SVE function. Conservative, but reliable
+#'     for small samples or boundary cases.
 #' @return A data frame with the following columns:
 #' \describe{
 #'   \item{estimate}{The symmetric vaccine efficacy estimate.}
 #'   \item{lower}{Lower bound of the confidence interval.}
 #'   \item{upper}{Upper bound of the confidence interval.}
 #'   \item{level}{Confidence interval level.}
-#'   \item{method}{Indicates whether the interval is a tanh-Wald interval or
-#'   standard Wald.}
+#'   \item{method}{Indicates the method used: "tanh-Wald", "Wald", or "Exact".}
 #' }
 #'
 #' @details
@@ -34,16 +43,70 @@
 #' }
 #' @examples
 #' # Example: unvaccinated 10% infection rate, vaccinated 5%, equal group sizes
-#' est_sve(p0 = 0.10, p1 = 0.05, n0 = 1000, n1 = 1000)
+#' est_sve(x0 = 100, x1 = 50, n0 = 1000, n1 = 1000, method = "tanh-wald")
 #'
 #' # Without Fisher z-transform (uses Wald interval)
-#' est_sve(p0 = 0.10, p1 = 0.05, n0 = 1000, n1 = 1000, transform = FALSE)
+#' est_sve(x0 = 100, x1 = 50, n0 = 1000, n1 = 1000, method = "wald")
 #'
+#' # Exact method for small samples
+#' est_sve(x0 = 10, x1 = 5, n0 = 100, n1 = 100, method = "exact")
 #' @export
-est_sve <- function(p0, p1, n0, n1, level = 0.95, transform = TRUE) {
+est_sve <- function(x0, x1, n0, n1, level = 0.95, method = c("tanh-wald", "wald", "exact")) {
+
+  method <- match.arg(method)
+
+  p0 <- x0 / n0
+  p1 <- x1 / n1
   sve_val <- sve(p0, p1)
 
-  if (transform) {
+  if (method == "exact") {
+
+    alpha <- 1 - level
+
+    if (x0 == 0) {
+      L_p0 <- 0
+    } else {
+      L_p0 <- stats::qbeta(alpha / 2, x0, n0 - x0 + 1)
+    }
+
+    if (x0 == n0) {
+      U_p0 <- 1
+    } else {
+      U_p0 <- stats::qbeta(1 - alpha / 2, x0 + 1, n0 - x0)
+    }
+
+    if (x1 == 0) {
+      L_p1 <- 0
+    } else {
+      L_p1 <- stats::qbeta(alpha / 2, x1, n1 - x1 + 1)
+    }
+
+    if (x1 == n1) {
+      U_p1 <- 1
+    } else {
+      U_p1 <- stats::qbeta(1 - alpha / 2, x1 + 1, n1 - x1)
+    }
+
+    # Find extrema of SVE over the rectangular region
+    p0_seq <- seq(L_p0, U_p0, length.out = 100)
+    p1_seq <- seq(L_p1, U_p1, length.out = 100)
+
+    # Evaluate SVE at all grid points
+    grid <- expand.grid(p0 = p0_seq, p1 = p1_seq)
+    sve_vals <- sve(grid$p0, grid$p1)
+
+    # Also evaluate at the corners (critical points)
+    corners <- expand.grid(p0 = c(L_p0, U_p0), p1 = c(L_p1, U_p1))
+    sve_corners <- sve(corners$p0, corners$p1)
+
+    # Combine and find extrema
+    all_sve <- c(sve_vals, sve_corners)
+    lower <- min(all_sve, na.rm = TRUE)
+    upper <- max(all_sve, na.rm = TRUE)
+
+    method <- "Exact"
+
+  } else if (method == "tanh-wald") {
     z_val <- atanh(sve_val)
 
     var_sve <- sve_var(p0, p1, n0, n1)
@@ -57,6 +120,8 @@ est_sve <- function(p0, p1, n0, n1, level = 0.95, transform = TRUE) {
     lower <- tanh(lower_z)
     upper <- tanh(upper_z)
 
+    method <- "tanh Wald"
+
   } else {
     var_sve <- sve_var(p0, p1, n0, n1)
     se_sve <- sqrt(var_sve)
@@ -64,6 +129,7 @@ est_sve <- function(p0, p1, n0, n1, level = 0.95, transform = TRUE) {
 
     lower <- sve_val - z_crit * se_sve
     upper <- sve_val + z_crit * se_sve
+    method <- "Wald"
   }
 
   data.frame(
@@ -71,7 +137,7 @@ est_sve <- function(p0, p1, n0, n1, level = 0.95, transform = TRUE) {
     lower = lower,
     upper = upper,
     level = level,
-    method = if (transform) "tanh-Wald" else "Wald"
+    method = method
   )
 }
 
