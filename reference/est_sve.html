@@ -76,9 +76,10 @@ unvaccinated groups.</p>
 transform before forming the Wald interval, then transforms back.
 Improves coverage when the estimate is near +/- 1.</p></li>
 <li><p><code>"wald"</code>: Standard Wald interval on the untransformed scale.</p></li>
-<li><p><code>"exact"</code>: Uses Clopper–Pearson binomial intervals for each group and
-propagates them through the SVE function. Conservative, but reliable
-for small samples or boundary cases.</p></li>
+<li><p><code>"exact"</code>: Uses exact conditional inference by conditioning on total
+cases and inverting the conditional binomial distribution (Clopper-Pearson
+limits for the conditional parameter). Conservative due to discreteness,
+but reliable for small samples or boundary cases.</p></li>
 </ul></dd>
 
 </dl></div>
