@@ -62,47 +62,40 @@ est_sve <- function(x0, x1, n0, n1, level = 0.95, method = c("tanh-wald", "wald"
   if (method == "exact") {
 
     alpha <- 1 - level
-
-    if (x0 == 0) {
-      L_p0 <- 0
-    } else {
-      L_p0 <- stats::qbeta(alpha / 2, x0, n0 - x0 + 1)
-    }
-
-    if (x0 == n0) {
-      U_p0 <- 1
-    } else {
-      U_p0 <- stats::qbeta(1 - alpha / 2, x0 + 1, n0 - x0)
-    }
+    m <- x0 + x1
 
     if (x1 == 0) {
-      L_p1 <- 0
+      pi_L <- 0
     } else {
-      L_p1 <- stats::qbeta(alpha / 2, x1, n1 - x1 + 1)
+      pi_L <- stats::qbeta(alpha / 2, x1, m - x1 + 1)
+    }
+    if (x1 == m) {
+      pi_U <- 1
+    } else {
+      pi_U <- stats::qbeta(1 - alpha / 2, x1 + 1, m - x1)
     }
 
-    if (x1 == n1) {
-      U_p1 <- 1
+    if (pi_L == 0) {
+      theta_L <- 0
     } else {
-      U_p1 <- stats::qbeta(1 - alpha / 2, x1 + 1, n1 - x1)
+      theta_L <- (n0 / n1) * (pi_L / (1 - pi_L))
+    }
+    if (pi_U == 1) {
+      theta_U <- Inf
+    } else {
+      theta_U <- (n0 / n1) * (pi_U / (1 - pi_U))
     }
 
-    # Find extrema of SVE over the rectangular region
-    p0_seq <- seq(L_p0, U_p0, length.out = 100)
-    p1_seq <- seq(L_p1, U_p1, length.out = 100)
-
-    # Evaluate SVE at all grid points
-    grid <- expand.grid(p0 = p0_seq, p1 = p1_seq)
-    sve_vals <- sve(grid$p0, grid$p1)
-
-    # Also evaluate at the corners (critical points)
-    corners <- expand.grid(p0 = c(L_p0, U_p0), p1 = c(L_p1, U_p1))
-    sve_corners <- sve(corners$p0, corners$p1)
-
-    # Combine and find extrema
-    all_sve <- c(sve_vals, sve_corners)
-    lower <- min(all_sve, na.rm = TRUE)
-    upper <- max(all_sve, na.rm = TRUE)
+    if (is.infinite(theta_U)) {
+      lower <- -1
+    } else {
+      lower <- (1 - theta_U) / max(1, theta_U)
+    }
+    if (theta_L == 0) {
+      upper <- 1
+    } else {
+      upper <- (1 - theta_L) / max(1, theta_L)
+    }
 
     method <- "Exact"
 
