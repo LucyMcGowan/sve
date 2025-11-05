@@ -24,9 +24,10 @@
 #'
 #'   * `"wald"`: Standard Wald interval on the untransformed scale.
 #'
-#'   * `"exact"`: Uses Clopper–Pearson binomial intervals for each group and
-#'     propagates them through the SVE function. Conservative, but reliable
-#'     for small samples or boundary cases.
+#'   * `"exact"`: Uses exact conditional inference by conditioning on total
+#'     cases and inverting the conditional binomial distribution (Clopper-Pearson
+#'     limits for the conditional parameter). Conservative due to discreteness,
+#'     but reliable for small samples or boundary cases.
 #' @return A data frame with the following columns:
 #' \describe{
 #'   \item{estimate}{The symmetric vaccine efficacy estimate.}

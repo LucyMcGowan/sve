@@ -25,9 +25,10 @@ One of:
 transform before forming the Wald interval, then transforms back.
 Improves coverage when the estimate is near +/- 1.
 \item \code{"wald"}: Standard Wald interval on the untransformed scale.
-\item \code{"exact"}: Uses Clopper–Pearson binomial intervals for each group and
-propagates them through the SVE function. Conservative, but reliable
-for small samples or boundary cases.
+\item \code{"exact"}: Uses exact conditional inference by conditioning on total
+cases and inverting the conditional binomial distribution (Clopper-Pearson
+limits for the conditional parameter). Conservative due to discreteness,
+but reliable for small samples or boundary cases.
 }}
 }
 \value{
