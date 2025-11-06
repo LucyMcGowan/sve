@@ -65,38 +65,20 @@ est_sve <- function(x0, x1, n0, n1, level = 0.95, method = c("tanh-wald", "wald"
     alpha <- 1 - level
     m <- x0 + x1
 
-    if (x1 == 0) {
-      pi_L <- 0
-    } else {
-      pi_L <- stats::qbeta(alpha / 2, x1, m - x1 + 1)
-    }
-    if (x1 == m) {
-      pi_U <- 1
-    } else {
-      pi_U <- stats::qbeta(1 - alpha / 2, x1 + 1, m - x1)
-    }
+    pi_L <- stats::qbeta(alpha / 2, x1, m - x1 + 1)
+    pi_L[x1 == 0] <- 0
+    pi_U <- stats::qbeta(1 - alpha / 2, x1 + 1, m - x1)
+    pi_U[x1 == m] <- 1
 
-    if (pi_L == 0) {
-      theta_L <- 0
-    } else {
-      theta_L <- (n0 / n1) * (pi_L / (1 - pi_L))
-    }
-    if (pi_U == 1) {
-      theta_U <- Inf
-    } else {
-      theta_U <- (n0 / n1) * (pi_U / (1 - pi_U))
-    }
+    theta_L <- (n0 / n1) * (pi_L / (1 - pi_L))
+    theta_L[pi_L == 0] <- 0
+    theta_U <- (n0 / n1) * (pi_U / (1 - pi_U))
+    theta_U[pi_U == 1] <- Inf
 
-    if (is.infinite(theta_U)) {
-      lower <- -1
-    } else {
-      lower <- (1 - theta_U) / max(1, theta_U)
-    }
-    if (theta_L == 0) {
-      upper <- 1
-    } else {
-      upper <- (1 - theta_L) / max(1, theta_L)
-    }
+    lower <- (1 - theta_U) / pmax(1, theta_U)
+    lower[is.infinite(theta_U)] <- -1
+    upper <- (1 - theta_L) / pmax(1, theta_L)
+    upper[theta_L == 0] <- 1
 
     method <- "Exact"
 
