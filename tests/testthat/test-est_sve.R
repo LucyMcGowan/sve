@@ -40,7 +40,61 @@ test_that("est_sve all methods give same point estimate", {
                          method = "wald")
   result_exact <- est_sve(x0 = 100, x1 = 50, n0 = 1000, n1 = 1000,
                           method = "exact")
+  result_profile <- est_sve(x0 = 100, x1 = 50, n0 = 1000, n1 = 1000,
+                            method = "profile")
 
   expect_equal(result_tanh$estimate, result_wald$estimate)
   expect_equal(result_tanh$estimate, result_exact$estimate)
+  expect_equal(result_tanh$estimate, result_profile$estimate)
+})
+
+test_that("profile likelihood method works correctly", {
+  result <- est_sve(x0 = 100, x1 = 50, n0 = 1000, n1 = 1000, method = "profile")
+
+  # Should return proper structure
+  expect_true(is.data.frame(result))
+  expect_equal(nrow(result), 1)
+  expect_equal(result$method, "Profile Likelihood")
+
+  # Point estimate should be 0.5
+  expect_equal(result$estimate, 0.5)
+
+  # CI should be properly ordered
+  expect_lt(result$lower, result$estimate)
+  expect_gt(result$upper, result$estimate)
+  expect_true(result$lower > -1)
+  expect_true(result$upper < 1)
+})
+
+test_that("profile likelihood handles small samples", {
+  result <- est_sve(x0 = 10, x1 = 5, n0 = 100, n1 = 100, method = "profile")
+
+  expect_true(is.finite(result$lower))
+  expect_true(is.finite(result$upper))
+  expect_lt(result$lower, result$estimate)
+  expect_gt(result$upper, result$estimate)
+})
+
+test_that("profile likelihood handles extreme efficacy", {
+  # High efficacy
+  result_high <- est_sve(x0 = 100, x1 = 5, n0 = 1000, n1 = 1000, method = "profile")
+  expect_true(result_high$estimate > 0.9)
+  expect_true(is.finite(result_high$lower))
+  expect_true(is.finite(result_high$upper))
+
+  # Low efficacy
+  result_low <- est_sve(x0 = 100, x1 = 95, n0 = 1000, n1 = 1000, method = "profile")
+  expect_true(abs(result_low$estimate) < 0.1)
+  expect_true(is.finite(result_low$lower))
+  expect_true(is.finite(result_low$upper))
+})
+
+test_that("profile likelihood handles negative efficacy", {
+  result <- est_sve(x0 = 30, x1 = 60, n0 = 1000, n1 = 1000, method = "profile")
+
+  expect_true(result$estimate < 0)
+  expect_true(is.finite(result$lower))
+  expect_true(is.finite(result$upper))
+  expect_lt(result$lower, result$estimate)
+  expect_gt(result$upper, result$estimate)
 })
