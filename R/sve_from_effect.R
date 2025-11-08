@@ -72,6 +72,9 @@
 sve_from_effect <- function(theta, var_log_theta, level = 0.95,
                              method = c("tanh-wald", "wald"), c = 1.96) {
   method <- match.arg(method)
+
+  check_confidence_level(level)
+
   if (any(theta <= 0)) {
     cli::cli_abort("{.arg theta} must be positive.")
   }
