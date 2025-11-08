@@ -78,16 +78,8 @@ est_sve <- function(x0, x1, n0, n1, level = 0.95,
 
   method <- match.arg(method)
 
-  # # Validate inputs
-  # if (any(x0 < 0 | x1 < 0 | n0 <= 0 | n1 <= 0)) {
-  #   stop("Invalid inputs: x0, x1 must be non-negative; n0, n1 must be positive")
-  # }
-  # if (any(x0 > n0 | x1 > n1)) {
-  #   stop("Invalid inputs: x0 must not exceed n0, x1 must not exceed n1")
-  # }
-  # if (level <= 0 || level >= 1) {
-  #   stop("level must be between 0 and 1")
-  # }
+  check_count_inputs(x_0, x_1, n_0, n_1)
+  check_confidence_level(level)
 
   p0 <- x0 / n0
   p1 <- x1 / n1
