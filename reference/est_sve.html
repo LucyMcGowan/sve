@@ -43,7 +43,15 @@ unvaccinated groups.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">est_sve</span><span class="op">(</span><span class="va">x0</span>, <span class="va">x1</span>, <span class="va">n0</span>, <span class="va">n1</span>, level <span class="op">=</span> <span class="fl">0.95</span>, method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tanh-wald"</span>, <span class="st">"wald"</span>, <span class="st">"exact"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">est_sve</span><span class="op">(</span></span>
+<span>  <span class="va">x0</span>,</span>
+<span>  <span class="va">x1</span>,</span>
+<span>  <span class="va">n0</span>,</span>
+<span>  <span class="va">n1</span>,</span>
+<span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
+<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"profile"</span>, <span class="st">"tanh-wald"</span>, <span class="st">"wald"</span>, <span class="st">"exact"</span><span class="op">)</span>,</span>
+<span>  c <span class="op">=</span> <span class="fl">1.96</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -72,15 +80,22 @@ unvaccinated groups.</p>
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>Method used to construct the confidence interval.</p>
-<p>One of:</p><ul><li><p><code>"tanh-wald"</code> (default): Applies a hyperbolic arctangent
+<p>One of:</p><ul><li><p><code>"profile"</code> (default): Profile likelihood confidence interval using likelihood
+ratio test inversion. More accurate than Wald-based methods, especially
+for small samples or extreme efficacy values.</p></li>
+<li><p><code>"tanh-wald"</code>: Applies a hyperbolic arctangent
 transform before forming the Wald interval, then transforms back.
-Improves coverage when the estimate is near +/- 1.</p></li>
+Keeps the interval bounded in (-1,1).</p></li>
 <li><p><code>"wald"</code>: Standard Wald interval on the untransformed scale.</p></li>
 <li><p><code>"exact"</code>: Uses exact conditional inference by conditioning on total
 cases and inverting the conditional binomial distribution (Clopper-Pearson
 limits for the conditional parameter). Conservative due to discreteness,
 but reliable for small samples or boundary cases.</p></li>
 </ul></dd>
+
+
+<dt id="arg-c">c<a class="anchor" aria-label="anchor" href="#arg-c"></a></dt>
+<dd><p>Correction parameter for variance smoothing (default 1.96).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -98,30 +113,43 @@ but reliable for small samples or boundary cases.</p></li>
 <dd><p>Confidence interval level.</p></dd>
 
 <dt>method</dt>
-<dd><p>Indicates the method used: "tanh-Wald", "Wald", or "Exact".</p></dd>
+<dd><p>Indicates the method used.</p></dd>
 
 
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>By default, confidence intervals are constructed using the hyperbolic
-arctangent (tanh-Wald) for improved coverage, especially when efficacy values
-approach the bounds of +/- 1. An exact method based on the Clopper-Pearson
-intervals is also available for small samples or boundary cases.</p>
+    <p>By default, confidence intervals are constructed using the profile likelihood.
+Two Wald-based intervals are available, one that uses the hyperbolic
+arctangent (tanh-Wald) to keep the bounds within (-1, 1), and the
+original-scale Wald. An exact method based on the Clopper-Pearson intervals
+is also available.</p>
 <p>The symmetric vaccine efficacy (SVE) is defined as:
 $$
 \text{SVE} = 2 \times \frac{p_0 - p_1}{p_0 + p_1 + |p_0 - p_1|}
 $$</p>
+<p>The profile likelihood method constructs confidence intervals by inverting
+the likelihood ratio test. For a given SVE value, it finds the maximum
+likelihood estimates of p0 and p1 subject to the constraint that their
+SVE equals the specified value, then compares this constrained likelihood
+to the unconstrained MLE.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Example: unvaccinated 10% infection rate, vaccinated 5%, equal group sizes</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Profile likelihood method</span></span></span>
+<span class="r-in"><span><span class="fu">est_sve</span><span class="op">(</span>x0 <span class="op">=</span> <span class="fl">10</span>, x1 <span class="op">=</span> <span class="fl">5</span>, n0 <span class="op">=</span> <span class="fl">100</span>, n1 <span class="op">=</span> <span class="fl">100</span>, method <span class="op">=</span> <span class="st">"profile"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   estimate      lower     upper level             method</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.5 -0.2614476 0.8394814  0.95 Profile Likelihood</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Wald (tanh-Wald)</span></span></span>
 <span class="r-in"><span><span class="fu">est_sve</span><span class="op">(</span>x0 <span class="op">=</span> <span class="fl">100</span>, x1 <span class="op">=</span> <span class="fl">50</span>, n0 <span class="op">=</span> <span class="fl">1000</span>, n1 <span class="op">=</span> <span class="fl">1000</span>, method <span class="op">=</span> <span class="st">"tanh-wald"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate     lower     upper level    method</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.5 0.3191164 0.6457354  0.95 tanh Wald</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Without Fisher z-transform (uses Wald interval)</span></span></span>
+<span class="r-in"><span><span class="co"># Without transform (uses Wald interval)</span></span></span>
 <span class="r-in"><span><span class="fu">est_sve</span><span class="op">(</span>x0 <span class="op">=</span> <span class="fl">100</span>, x1 <span class="op">=</span> <span class="fl">50</span>, n0 <span class="op">=</span> <span class="fl">1000</span>, n1 <span class="op">=</span> <span class="fl">1000</span>, method <span class="op">=</span> <span class="st">"wald"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate     lower     upper level method</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.5 0.3360176 0.6639824  0.95   Wald</span>
@@ -130,6 +158,8 @@ $$</p>
 <span class="r-in"><span><span class="fu">est_sve</span><span class="op">(</span>x0 <span class="op">=</span> <span class="fl">10</span>, x1 <span class="op">=</span> <span class="fl">5</span>, n0 <span class="op">=</span> <span class="fl">100</span>, n1 <span class="op">=</span> <span class="fl">100</span>, method <span class="op">=</span> <span class="st">"exact"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate      lower     upper level method</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.5 -0.3771404 0.8659031  0.95  Exact</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -141,7 +171,7 @@ $$</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
