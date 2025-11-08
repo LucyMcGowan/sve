@@ -114,18 +114,22 @@ likelihood to the unconstrained MLE.
 
 # Profile likelihood method
 est_sve(x0 = 10, x1 = 5, n0 = 100, n1 = 100, method = "profile")
-#> Error in check_count_inputs(x_0, x_1, n_0, n_1): could not find function "check_count_inputs"
+#>   estimate      lower     upper level             method
+#> 1      0.5 -0.2614476 0.8394814  0.95 Profile Likelihood
 
 # Wald (tanh-Wald)
 est_sve(x0 = 100, x1 = 50, n0 = 1000, n1 = 1000, method = "tanh-wald")
-#> Error in check_count_inputs(x_0, x_1, n_0, n_1): could not find function "check_count_inputs"
+#>   estimate     lower     upper level    method
+#> 1      0.5 0.3191164 0.6457354  0.95 tanh Wald
 
 # Without transform (uses Wald interval)
 est_sve(x0 = 100, x1 = 50, n0 = 1000, n1 = 1000, method = "wald")
-#> Error in check_count_inputs(x_0, x_1, n_0, n_1): could not find function "check_count_inputs"
+#>   estimate     lower     upper level method
+#> 1      0.5 0.3360176 0.6639824  0.95   Wald
 
 # Exact method for small samples
 est_sve(x0 = 10, x1 = 5, n0 = 100, n1 = 100, method = "exact")
-#> Error in check_count_inputs(x_0, x_1, n_0, n_1): could not find function "check_count_inputs"
+#>   estimate      lower     upper level method
+#> 1      0.5 -0.3771404 0.8659031  0.95  Exact
 
 ```
