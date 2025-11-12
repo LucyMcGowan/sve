@@ -36,7 +36,7 @@ unvaccinated groups."></head><body>
     </div>
 
     <div class="ref-description section level2">
-    <p>Computes the <strong>symmetric vaccine efficacy (SVE)</strong> and associated confidence
+    <p>Computes the symmetric vaccine efficacy (SVE) and associated confidence
 intervals based on observed proportions of events in vaccinated and
 unvaccinated groups.</p>
     </div>
@@ -50,7 +50,8 @@ unvaccinated groups.</p>
 <span>  <span class="va">n1</span>,</span>
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"profile"</span>, <span class="st">"tanh-wald"</span>, <span class="st">"wald"</span>, <span class="st">"exact"</span><span class="op">)</span>,</span>
-<span>  c <span class="op">=</span> <span class="fl">1.96</span></span>
+<span>  smooth <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  epsilon <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -94,8 +95,21 @@ but reliable for small samples or boundary cases.</p></li>
 </ul></dd>
 
 
-<dt id="arg-c">c<a class="anchor" aria-label="anchor" href="#arg-c"></a></dt>
-<dd><p>Correction parameter for variance smoothing (default 1.96).</p></dd>
+<dt id="arg-smooth">smooth<a class="anchor" aria-label="anchor" href="#arg-smooth"></a></dt>
+<dd><p>Logical. Should variance smoothing be applied near the null?
+Default is TRUE. Only used for Wald-based methods (<code>wald</code>, <code>tanh-wald</code>).
+Ignored for profile likelihood. Recommended to avoid instability when
+effect is near 1.</p></dd>
+
+
+<dt id="arg-epsilon">epsilon<a class="anchor" aria-label="anchor" href="#arg-epsilon"></a></dt>
+<dd><p>Numeric. The smoothing window. Only used for Wald-based
+methods (<code>wald</code>, <code>tanh-wald</code>) when <code>smooth = TRUE</code>. If <code>NULL</code> and
+<code>smooth = TRUE</code>, defaults to \(z_{\alpha/2}
+  \sqrt{\hat{p}_0(1-\hat{p}_0)/n_0 + \hat{p}_1(1-\hat{p}_1)/n_1}\)
+where \(\hat{p}_0 = x_0/n_0\), \(\hat{p}_1 = x_1/n_1\), and
+\(z_{\alpha/2}\) is the critical value from the standard normal
+distribution corresponding to the confidence level.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -141,13 +155,13 @@ to the unconstrained MLE.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Profile likelihood method</span></span></span>
 <span class="r-in"><span><span class="fu">est_sve</span><span class="op">(</span>x0 <span class="op">=</span> <span class="fl">10</span>, x1 <span class="op">=</span> <span class="fl">5</span>, n0 <span class="op">=</span> <span class="fl">100</span>, n1 <span class="op">=</span> <span class="fl">100</span>, method <span class="op">=</span> <span class="st">"profile"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   estimate      lower     upper level             method</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.5 -0.2614476 0.8394814  0.95 Profile Likelihood</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   estimate      lower     upper level  method</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.5 -0.2614476 0.8394814  0.95 Profile</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Wald (tanh-Wald)</span></span></span>
 <span class="r-in"><span><span class="fu">est_sve</span><span class="op">(</span>x0 <span class="op">=</span> <span class="fl">100</span>, x1 <span class="op">=</span> <span class="fl">50</span>, n0 <span class="op">=</span> <span class="fl">1000</span>, n1 <span class="op">=</span> <span class="fl">1000</span>, method <span class="op">=</span> <span class="st">"tanh-wald"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate     lower     upper level    method</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.5 0.3191164 0.6457354  0.95 tanh Wald</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.5 0.3191164 0.6457354  0.95 tanh-Wald</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Without transform (uses Wald interval)</span></span></span>
 <span class="r-in"><span><span class="fu">est_sve</span><span class="op">(</span>x0 <span class="op">=</span> <span class="fl">100</span>, x1 <span class="op">=</span> <span class="fl">50</span>, n0 <span class="op">=</span> <span class="fl">1000</span>, n1 <span class="op">=</span> <span class="fl">1000</span>, method <span class="op">=</span> <span class="st">"wald"</span><span class="op">)</span></span></span>

@@ -1,8 +1,8 @@
 # Symmetric Vaccine Efficacy from Relative Effect Measures
 
-Computes the **symmetric vaccine efficacy (SVE)** and associated
-confidence intervals from a relative effect measure (e.g., relative
-risk, hazard ratio, odds ratio) obtained from a regression model.
+Computes the symmetric vaccine efficacy (SVE) and associated confidence
+intervals from a relative effect measure (e.g., relative risk, hazard
+ratio, odds ratio) obtained from a regression model.
 
 ## Usage
 
@@ -11,8 +11,9 @@ sve_from_effect(
   theta,
   var_log_theta,
   level = 0.95,
-  method = c("tanh-wald", "wald"),
-  c = 1.96
+  method = c("profile", "tanh-wald", "wald"),
+  smooth = TRUE,
+  epsilon = NULL
 )
 ```
 
@@ -39,17 +40,35 @@ sve_from_effect(
 
   One of:
 
-  - `"tanh-wald"` (default): Applies a hyperbolic arctangent transform
-    before forming the Wald interval, then transforms back. Improves
-    coverage when the estimate is near +/- 1.
+  - `"profile"` (default): Profile likelihood-based confidence interval
+    using a normal approximation for log(theta). The interval inverts
+    the likelihood ratio test after transforming to the SVE scale. To
+    use the exact likelihood from a fitted regression model instead of
+    the normal approximation, see
+    [`sve_from_model()`](https://lucymcgowan.github.io/sve/reference/sve_from_model.md).
+
+  - `"tanh-wald"`: Applies a hyperbolic arctangent transform before
+    forming the Wald interval, then transforms back. Improves coverage
+    when the estimate is near +/- 1.
 
   - `"wald"`: Standard Wald interval on the untransformed scale.
 
-- c:
+- smooth:
 
-  Numeric. Constant for determining epsilon in the smoothing
-  approximation (default is 1.96). The smoothing parameter is set to
-  `c * sqrt(var_log_theta)`.
+  Logical. Should variance smoothing be applied near the null? Default
+  is TRUE. Only used for Wald-based methods (`wald`, `tanh-wald`).
+  Ignored for profile likelihood. Recommended to avoid instability when
+  effect is near 1.
+
+- epsilon:
+
+  Numeric. The smoothing window. Only used for Wald-based methods
+  (`wald`, `tanh-wald`) when `smooth = TRUE`. If `NULL` and
+  `smooth = TRUE`, defaults to \\z\_{\alpha/2}
+  \sqrt{\hat{p}\_0(1-\hat{p}\_0)/n_0 + \hat{p}\_1(1-\hat{p}\_1)/n_1}\\
+  where \\\hat{p}\_0 = x_0/n_0\\, \\\hat{p}\_1 = x_1/n_1\\, and
+  \\z\_{\alpha/2}\\ is the critical value from the standard normal
+  distribution corresponding to the confidence level.
 
 ## Value
 
@@ -73,20 +92,15 @@ A data frame with the following columns:
 
 - method:
 
-  Indicates whether the interval is a tanh-Wald interval or standard
-  Wald.
+  Indicates the method used for the confidence interval.
 
 ## Details
 
 The symmetric vaccine efficacy (SVE) from a relative effect measure is:
-\$\$ \text{SVE} = \frac{2(1 - \theta)}{1 + \theta + \|1 - \theta\|} \$\$
-where \\\theta\\ is the relative effect measure.
-
-The variance is computed via the delta method applied to \\\phi =
-\log(\theta)\\. When \\\|1 - \theta\| \> \varepsilon\\, the derivative
-depends on whether \\\theta \< 1\\ (protective) or \\\theta \> 1\\
-(harmful). When \\\|1 - \theta\| \leq \varepsilon\\, a smooth
-approximation is used.
+\$\$ \text{SVE} = \frac{1 - \theta}{\max(1, \theta)} \$\$ where
+\\\theta\\ is the relative effect measure. When \\\theta \< 1\\, this
+simplifies to \\\text{SVE} = 1 - \theta\\ (protective). When \\\theta \>
+1\\, it becomes \\\text{SVE} = (1 - \theta)/\theta\\ (harmful).
 
 ## Examples
 
@@ -97,6 +111,11 @@ hr <- 0.7
 se_log_hr <- 0.15
 var_log_hr <- se_log_hr^2
 sve_from_effect(theta = hr, var_log_theta = var_log_hr)
+#>   estimate      lower     upper level  method
+#> 1      0.3 0.06075634 0.4783036  0.95 Profile
+
+# With tanh-Wald method
+sve_from_effect(theta = hr, var_log_theta = var_log_hr, method = "tanh-wald")
 #>   estimate      lower     upper level    method
 #> 1      0.3 0.08317729 0.4897028  0.95 tanh-Wald
 
@@ -104,10 +123,10 @@ sve_from_effect(theta = hr, var_log_theta = var_log_hr)
 hrs <- c(0.5, 0.8, 1.2)
 var_log_hrs <- c(0.04, 0.025, 0.036)
 sve_from_effect(theta = hrs, var_log_theta = var_log_hrs)
-#>     estimate       lower     upper level    method
-#> 1  0.5000000  0.28027235 0.6699402  0.95 tanh-Wald
-#> 2  0.2000000 -0.06138895 0.4357166  0.95 tanh-Wald
-#> 3 -0.1666667 -0.50275923 0.2131984  0.95 tanh-Wald
+#>     estimate       lower     upper level  method
+#> 1  0.5000000  0.26003647 0.6621455  0.95 Profile
+#> 2  0.2000000 -0.08309734 0.4131823  0.95 Profile
+#> 3 -0.1666667 -0.42546748 0.1726732  0.95 Profile
 
 # Using output directly from a Cox model
 if (FALSE) { # \dontrun{

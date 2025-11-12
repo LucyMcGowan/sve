@@ -1,8 +1,8 @@
 # Symmetric Vaccine Efficacy
 
-Computes the **symmetric vaccine efficacy (SVE)** and associated
-confidence intervals based on observed proportions of events in
-vaccinated and unvaccinated groups.
+Computes the symmetric vaccine efficacy (SVE) and associated confidence
+intervals based on observed proportions of events in vaccinated and
+unvaccinated groups.
 
 ## Usage
 
@@ -14,7 +14,8 @@ est_sve(
   n1,
   level = 0.95,
   method = c("profile", "tanh-wald", "wald", "exact"),
-  c = 1.96
+  smooth = TRUE,
+  epsilon = NULL
 )
 ```
 
@@ -62,9 +63,22 @@ est_sve(
     due to discreteness, but reliable for small samples or boundary
     cases.
 
-- c:
+- smooth:
 
-  Correction parameter for variance smoothing (default 1.96).
+  Logical. Should variance smoothing be applied near the null? Default
+  is TRUE. Only used for Wald-based methods (`wald`, `tanh-wald`).
+  Ignored for profile likelihood. Recommended to avoid instability when
+  effect is near 1.
+
+- epsilon:
+
+  Numeric. The smoothing window. Only used for Wald-based methods
+  (`wald`, `tanh-wald`) when `smooth = TRUE`. If `NULL` and
+  `smooth = TRUE`, defaults to \\z\_{\alpha/2}
+  \sqrt{\hat{p}\_0(1-\hat{p}\_0)/n_0 + \hat{p}\_1(1-\hat{p}\_1)/n_1}\\
+  where \\\hat{p}\_0 = x_0/n_0\\, \\\hat{p}\_1 = x_1/n_1\\, and
+  \\z\_{\alpha/2}\\ is the critical value from the standard normal
+  distribution corresponding to the confidence level.
 
 ## Value
 
@@ -114,13 +128,13 @@ likelihood to the unconstrained MLE.
 
 # Profile likelihood method
 est_sve(x0 = 10, x1 = 5, n0 = 100, n1 = 100, method = "profile")
-#>   estimate      lower     upper level             method
-#> 1      0.5 -0.2614476 0.8394814  0.95 Profile Likelihood
+#>   estimate      lower     upper level  method
+#> 1      0.5 -0.2614476 0.8394814  0.95 Profile
 
 # Wald (tanh-Wald)
 est_sve(x0 = 100, x1 = 50, n0 = 1000, n1 = 1000, method = "tanh-wald")
 #>   estimate     lower     upper level    method
-#> 1      0.5 0.3191164 0.6457354  0.95 tanh Wald
+#> 1      0.5 0.3191164 0.6457354  0.95 tanh-Wald
 
 # Without transform (uses Wald interval)
 est_sve(x0 = 100, x1 = 50, n0 = 1000, n1 = 1000, method = "wald")

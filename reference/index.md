@@ -8,3 +8,5 @@
   : Simulated Vaccine Trial Data
 - [`sve_from_effect()`](https://lucymcgowan.github.io/sve/reference/sve_from_effect.md)
   : Symmetric Vaccine Efficacy from Relative Effect Measures
+- [`sve_from_model()`](https://lucymcgowan.github.io/sve/reference/sve_from_model.md)
+  : Symmetric Vaccine Efficacy from Fitted Model

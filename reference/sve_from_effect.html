@@ -36,7 +36,7 @@ hazard ratio, odds ratio) obtained from a regression model."></head><body>
     </div>
 
     <div class="ref-description section level2">
-    <p>Computes the <strong>symmetric vaccine efficacy (SVE)</strong> and associated confidence
+    <p>Computes the symmetric vaccine efficacy (SVE) and associated confidence
 intervals from a relative effect measure (e.g., relative risk,
 hazard ratio, odds ratio) obtained from a regression model.</p>
     </div>
@@ -47,8 +47,9 @@ hazard ratio, odds ratio) obtained from a regression model.</p>
 <span>  <span class="va">theta</span>,</span>
 <span>  <span class="va">var_log_theta</span>,</span>
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
-<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tanh-wald"</span>, <span class="st">"wald"</span><span class="op">)</span>,</span>
-<span>  c <span class="op">=</span> <span class="fl">1.96</span></span>
+<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"profile"</span>, <span class="st">"tanh-wald"</span>, <span class="st">"wald"</span><span class="op">)</span>,</span>
+<span>  smooth <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  epsilon <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -73,17 +74,33 @@ error). Must have the same length as <code>theta</code>.</p></dd>
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>Method used to construct the confidence interval.</p>
-<p>One of:</p><ul><li><p><code>"tanh-wald"</code> (default): Applies a hyperbolic arctangent
+<p>One of:</p><ul><li><p><code>"profile"</code> (default): Profile likelihood-based confidence interval
+using a normal approximation for log(theta). The interval inverts
+the likelihood ratio test after transforming to the SVE scale. To use
+the exact likelihood from a fitted regression model instead of the
+normal approximation, see <code><a href="sve_from_model.html">sve_from_model()</a></code>.</p></li>
+<li><p><code>"tanh-wald"</code>: Applies a hyperbolic arctangent
 transform before forming the Wald interval, then transforms back.
 Improves coverage when the estimate is near +/- 1.</p></li>
 <li><p><code>"wald"</code>: Standard Wald interval on the untransformed scale.</p></li>
 </ul></dd>
 
 
-<dt id="arg-c">c<a class="anchor" aria-label="anchor" href="#arg-c"></a></dt>
-<dd><p>Numeric. Constant for determining epsilon in the smoothing
-approximation (default is 1.96). The smoothing parameter is set to
-<code>c * sqrt(var_log_theta)</code>.</p></dd>
+<dt id="arg-smooth">smooth<a class="anchor" aria-label="anchor" href="#arg-smooth"></a></dt>
+<dd><p>Logical. Should variance smoothing be applied near the null?
+Default is TRUE. Only used for Wald-based methods (<code>wald</code>, <code>tanh-wald</code>).
+Ignored for profile likelihood. Recommended to avoid instability when
+effect is near 1.</p></dd>
+
+
+<dt id="arg-epsilon">epsilon<a class="anchor" aria-label="anchor" href="#arg-epsilon"></a></dt>
+<dd><p>Numeric. The smoothing window. Only used for Wald-based
+methods (<code>wald</code>, <code>tanh-wald</code>) when <code>smooth = TRUE</code>. If <code>NULL</code> and
+<code>smooth = TRUE</code>, defaults to \(z_{\alpha/2}
+  \sqrt{\hat{p}_0(1-\hat{p}_0)/n_0 + \hat{p}_1(1-\hat{p}_1)/n_1}\)
+where \(\hat{p}_0 = x_0/n_0\), \(\hat{p}_1 = x_1/n_1\), and
+\(z_{\alpha/2}\) is the critical value from the standard normal
+distribution corresponding to the confidence level.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -101,8 +118,7 @@ approximation (default is 1.96). The smoothing parameter is set to
 <dd><p>Confidence interval level.</p></dd>
 
 <dt>method</dt>
-<dd><p>Indicates whether the interval is a tanh-Wald interval or
-standard Wald.</p></dd>
+<dd><p>Indicates the method used for the confidence interval.</p></dd>
 
 
 </dl></div>
@@ -110,13 +126,11 @@ standard Wald.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The symmetric vaccine efficacy (SVE) from a relative effect measure is:
 $$
-\text{SVE} = \frac{2(1 - \theta)}{1 + \theta + |1 - \theta|}
+\text{SVE} = \frac{1 - \theta}{\max(1, \theta)}
 $$
-where \(\theta\) is the relative effect measure.</p>
-<p>The variance is computed via the delta method applied to \(\phi = \log(\theta)\).
-When \(|1 - \theta| &gt; \varepsilon\), the derivative depends on whether
-\(\theta &lt; 1\) (protective) or \(\theta &gt; 1\) (harmful). When
-\(|1 - \theta| \leq \varepsilon\), a smooth approximation is used.</p>
+where \(\theta\) is the relative effect measure. When \(\theta &lt; 1\),
+this simplifies to \(\text{SVE} = 1 - \theta\) (protective). When
+\(\theta &gt; 1\), it becomes \(\text{SVE} = (1 - \theta)/\theta\) (harmful).</p>
     </div>
 
     <div class="section level2">
@@ -127,6 +141,11 @@ When \(|1 - \theta| &gt; \varepsilon\), the derivative depends on whether
 <span class="r-in"><span><span class="va">se_log_hr</span> <span class="op">&lt;-</span> <span class="fl">0.15</span></span></span>
 <span class="r-in"><span><span class="va">var_log_hr</span> <span class="op">&lt;-</span> <span class="va">se_log_hr</span><span class="op">^</span><span class="fl">2</span></span></span>
 <span class="r-in"><span><span class="fu">sve_from_effect</span><span class="op">(</span>theta <span class="op">=</span> <span class="va">hr</span>, var_log_theta <span class="op">=</span> <span class="va">var_log_hr</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   estimate      lower     upper level  method</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.3 0.06075634 0.4783036  0.95 Profile</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># With tanh-Wald method</span></span></span>
+<span class="r-in"><span><span class="fu">sve_from_effect</span><span class="op">(</span>theta <span class="op">=</span> <span class="va">hr</span>, var_log_theta <span class="op">=</span> <span class="va">var_log_hr</span>, method <span class="op">=</span> <span class="st">"tanh-wald"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate      lower     upper level    method</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.3 0.08317729 0.4897028  0.95 tanh-Wald</span>
 <span class="r-in"><span></span></span>
@@ -134,10 +153,10 @@ When \(|1 - \theta| &gt; \varepsilon\), the derivative depends on whether
 <span class="r-in"><span><span class="va">hrs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.8</span>, <span class="fl">1.2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">var_log_hrs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.04</span>, <span class="fl">0.025</span>, <span class="fl">0.036</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">sve_from_effect</span><span class="op">(</span>theta <span class="op">=</span> <span class="va">hrs</span>, var_log_theta <span class="op">=</span> <span class="va">var_log_hrs</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     estimate       lower     upper level    method</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.5000000  0.28027235 0.6699402  0.95 tanh-Wald</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.2000000 -0.06138895 0.4357166  0.95 tanh-Wald</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.1666667 -0.50275923 0.2131984  0.95 tanh-Wald</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     estimate       lower     upper level  method</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.5000000  0.26003647 0.6621455  0.95 Profile</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.2000000 -0.08309734 0.4131823  0.95 Profile</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.1666667 -0.42546748 0.1726732  0.95 Profile</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Using output directly from a Cox model</span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
