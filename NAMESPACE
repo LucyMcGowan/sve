@@ -2,3 +2,4 @@
 
 export(est_sve)
 export(sve_from_effect)
+export(sve_from_model)

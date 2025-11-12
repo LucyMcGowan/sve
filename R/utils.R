@@ -32,3 +32,20 @@ check_confidence_level <- function(level) {
   }
 }
 
+check_theta <- function(theta, var_log_theta) {
+  if (any(theta <= 0)) {
+    cli::cli_abort("{.arg theta} must be positive.")
+  }
+
+  if (any(var_log_theta < 0)) {
+    cli::cli_abort("{.arg var_log_theta} must be non-negative.")
+  }
+
+  if (length(theta) != length(var_log_theta)) {
+    cli::cli_abort(
+      c("{.arg theta} and {.arg var_log_theta} must have the same length.",
+        "i" = "{.arg theta} has length {length(theta)}.",
+        "i" = "{.arg var_log_theta} has length {length(var_log_theta)}.")
+    )
+  }
+}

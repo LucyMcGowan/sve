@@ -46,7 +46,7 @@ est_sve(x0 = 10,
         n1 = 1000)
 ```
 
-By default, confidence intervals are calculated on a transformed scale and then back-transformed in order to ensure that they remain between -1 and 1 (`method = "tanh-wald"`). If you do not want to use this transformation, you can set the option `method = "wald"`:
+By default, confidence intervals are calculated using the profile likelihood method. To calculate Wald-type intervals on a transformed scale and then back-transformed in order to ensure that they remain between -1 and 1 use `method = "tanh-wald"`. If you do not want to use this transformation, you can set the option `method = "wald"`:
 
 ```{r}
 est_sve(x0 = 10, 
@@ -56,29 +56,17 @@ est_sve(x0 = 10,
         method = "wald")
 ```
 
-For small samples or a small number of events exact intervals may be preferred. For these, you can set `method = "exact"`:
-
-```{r}
-est_sve(x0 = 10, 
-        x1 = 5, 
-        n0 = 100, 
-        n1 = 100,
-        method = "exact")
-```
-
 ## Using relative effect measures
 
-The `sve_from_effect()` function computes SVE from relative effect measures (e.g., hazard ratios from Cox models, relative risks from Poisson regression). Below is an example using a Cox proportional hazards model and a simulated data set provided in this package (`sim_trial_data`).
+The `sve_from_model()` function computes SVE from relative effect measures (e.g., hazard ratios from Cox models, relative risks from Poisson regression) extracted from model objects. Below is an example using a Cox proportional hazards model and a simulated data set provided in this package (`sim_trial_data`).
 
 ```{r, eval = requireNamespace("survival", quietly = TRUE)}
 library(survival)
 
 fit <- coxph(Surv(time, status) ~ vaccination + age + baseline_risk, 
              data = sim_trial_data)
-hr <- exp(coef(fit)["vaccination"])
-var_log_hr <- vcov(fit)["vaccination", "vaccination"]
 
-sve_from_effect(theta = hr, var_log_theta = var_log_hr)
+sve_from_model(model = fit, data = sim_trial_data, effect_name = "vaccination")
 ```
 
 ## Methods overview
@@ -86,7 +74,7 @@ sve_from_effect(theta = hr, var_log_theta = var_log_hr)
 The symmetric vaccine efficacy (SVE) is defined as
 
 $$
-\text{SVE}=\frac{2(p_0-p_1)}{p_0+p_1+|p_0-p_1|},
+\text{SVE}=\frac{(p_0-p_1)}{\max(p_0, p_1)},
 $$
  
 where:
@@ -97,5 +85,5 @@ where:
 This formulation ensures the estimator is bounded between -1 and 1. Equivalently, it can be written in terms of a relative effect measure, $\theta$ (such as a relative risk or hazard ratio):
 
 $$
-\text{SVE} = \frac{2(1 - \theta)}{1 + \theta + |1 - \theta|}.
+\text{SVE} = \frac{(1 - \theta)}{\max(1,\theta)}.
 $$

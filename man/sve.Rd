@@ -2,11 +2,19 @@
 % Please edit documentation in R/est_sve.R
 \name{sve}
 \alias{sve}
-\title{SVE calculation}
+\title{Compute SVE from Proportions}
 \usage{
 sve(p0, p1)
 }
+\arguments{
+\item{p0}{Proportion in unvaccinated group}
+
+\item{p1}{Proportion in vaccinated group}
+}
+\value{
+Symmetric vaccine efficacy
+}
 \description{
-SVE calculation
+Compute SVE from Proportions
 }
 \keyword{internal}

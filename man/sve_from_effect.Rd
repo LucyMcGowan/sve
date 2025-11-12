@@ -8,8 +8,9 @@ sve_from_effect(
   theta,
   var_log_theta,
   level = 0.95,
-  method = c("tanh-wald", "wald"),
-  c = 1.96
+  method = c("profile", "tanh-wald", "wald"),
+  smooth = TRUE,
+  epsilon = NULL
 )
 }
 \arguments{
@@ -26,15 +27,29 @@ error). Must have the same length as \code{theta}.}
 
 One of:
 \itemize{
-\item \code{"tanh-wald"} (default): Applies a hyperbolic arctangent
+\item \code{"profile"} (default): Profile likelihood-based confidence interval
+using a normal approximation for log(theta). The interval inverts
+the likelihood ratio test after transforming to the SVE scale. To use
+the exact likelihood from a fitted regression model instead of the
+normal approximation, see \code{\link[=sve_from_model]{sve_from_model()}}.
+\item \code{"tanh-wald"}: Applies a hyperbolic arctangent
 transform before forming the Wald interval, then transforms back.
 Improves coverage when the estimate is near +/- 1.
 \item \code{"wald"}: Standard Wald interval on the untransformed scale.
 }}
 
-\item{c}{Numeric. Constant for determining epsilon in the smoothing
-approximation (default is 1.96). The smoothing parameter is set to
-\code{c * sqrt(var_log_theta)}.}
+\item{smooth}{Logical. Should variance smoothing be applied near the null?
+Default is TRUE. Only used for Wald-based methods (\code{wald}, \code{tanh-wald}).
+Ignored for profile likelihood. Recommended to avoid instability when
+effect is near 1.}
+
+\item{epsilon}{Numeric. The smoothing window. Only used for Wald-based
+methods (\code{wald}, \code{tanh-wald}) when \code{smooth = TRUE}. If \code{NULL} and
+\code{smooth = TRUE}, defaults to \eqn{z_{\alpha/2}
+  \sqrt{\hat{p}_0(1-\hat{p}_0)/n_0 + \hat{p}_1(1-\hat{p}_1)/n_1}}
+where \eqn{\hat{p}_0 = x_0/n_0}, \eqn{\hat{p}_1 = x_1/n_1}, and
+\eqn{z_{\alpha/2}} is the critical value from the standard normal
+distribution corresponding to the confidence level.}
 }
 \value{
 A data frame with the following columns:
@@ -43,26 +58,22 @@ A data frame with the following columns:
 \item{lower}{Lower bound of the confidence interval.}
 \item{upper}{Upper bound of the confidence interval.}
 \item{level}{Confidence interval level.}
-\item{method}{Indicates whether the interval is a tanh-Wald interval or
-standard Wald.}
+\item{method}{Indicates the method used for the confidence interval.}
 }
 }
 \description{
-Computes the \strong{symmetric vaccine efficacy (SVE)} and associated confidence
+Computes the symmetric vaccine efficacy (SVE) and associated confidence
 intervals from a relative effect measure (e.g., relative risk,
 hazard ratio, odds ratio) obtained from a regression model.
 }
 \details{
 The symmetric vaccine efficacy (SVE) from a relative effect measure is:
 \deqn{
-\text{SVE} = \frac{2(1 - \theta)}{1 + \theta + |1 - \theta|}
+\text{SVE} = \frac{1 - \theta}{\max(1, \theta)}
 }
-where \eqn{\theta} is the relative effect measure.
-
-The variance is computed via the delta method applied to \eqn{\phi = \log(\theta)}.
-When \eqn{|1 - \theta| > \varepsilon}, the derivative depends on whether
-\eqn{\theta < 1} (protective) or \eqn{\theta > 1} (harmful). When
-\eqn{|1 - \theta| \leq \varepsilon}, a smooth approximation is used.
+where \eqn{\theta} is the relative effect measure. When \eqn{\theta < 1},
+this simplifies to \eqn{\text{SVE} = 1 - \theta} (protective). When
+\eqn{\theta > 1}, it becomes \eqn{\text{SVE} = (1 - \theta)/\theta} (harmful).
 }
 \examples{
 # Example with a hazard ratio from a Cox model
@@ -71,6 +82,9 @@ hr <- 0.7
 se_log_hr <- 0.15
 var_log_hr <- se_log_hr^2
 sve_from_effect(theta = hr, var_log_theta = var_log_hr)
+
+# With tanh-Wald method
+sve_from_effect(theta = hr, var_log_theta = var_log_hr, method = "tanh-wald")
 
 # Example with multiple effect estimates (e.g., from subgroups)
 hrs <- c(0.5, 0.8, 1.2)

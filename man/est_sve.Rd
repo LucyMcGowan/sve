@@ -11,7 +11,8 @@ est_sve(
   n1,
   level = 0.95,
   method = c("profile", "tanh-wald", "wald", "exact"),
-  c = 1.96
+  smooth = TRUE,
+  epsilon = NULL
 )
 }
 \arguments{
@@ -42,7 +43,18 @@ limits for the conditional parameter). Conservative due to discreteness,
 but reliable for small samples or boundary cases.
 }}
 
-\item{c}{Correction parameter for variance smoothing (default 1.96).}
+\item{smooth}{Logical. Should variance smoothing be applied near the null?
+Default is TRUE. Only used for Wald-based methods (\code{wald}, \code{tanh-wald}).
+Ignored for profile likelihood. Recommended to avoid instability when
+effect is near 1.}
+
+\item{epsilon}{Numeric. The smoothing window. Only used for Wald-based
+methods (\code{wald}, \code{tanh-wald}) when \code{smooth = TRUE}. If \code{NULL} and
+\code{smooth = TRUE}, defaults to \eqn{z_{\alpha/2}
+  \sqrt{\hat{p}_0(1-\hat{p}_0)/n_0 + \hat{p}_1(1-\hat{p}_1)/n_1}}
+where \eqn{\hat{p}_0 = x_0/n_0}, \eqn{\hat{p}_1 = x_1/n_1}, and
+\eqn{z_{\alpha/2}} is the critical value from the standard normal
+distribution corresponding to the confidence level.}
 }
 \value{
 A data frame with the following columns:
@@ -55,7 +67,7 @@ A data frame with the following columns:
 }
 }
 \description{
-Computes the \strong{symmetric vaccine efficacy (SVE)} and associated confidence
+Computes the symmetric vaccine efficacy (SVE) and associated confidence
 intervals based on observed proportions of events in vaccinated and
 unvaccinated groups.
 }
