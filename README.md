@@ -6,6 +6,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/LucyMcGowan/sve/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LucyMcGowan/sve/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/LucyMcGowan/sve/graph/badge.svg)](https://app.codecov.io/gh/LucyMcGowan/sve)
 <!-- badges: end -->
 
 The goal of sve is to facilitate the calculation of symmetric vaccine
