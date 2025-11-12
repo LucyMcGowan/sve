@@ -3,9 +3,6 @@ output: github_document
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-<!-- badges: start -->
-  [![R-CMD-check](https://github.com/LucyMcGowan/sve/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LucyMcGowan/sve/actions/workflows/R-CMD-check.yaml)
-  <!-- badges: end -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -17,6 +14,10 @@ knitr::opts_chunk$set(
 ```
 
 # sve
+
+<!-- badges: start -->
+  [![R-CMD-check](https://github.com/LucyMcGowan/sve/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LucyMcGowan/sve/actions/workflows/R-CMD-check.yaml)
+  <!-- badges: end -->
 
 The goal of sve is to facilitate the calculation of symmetric vaccine efficacy (SVE) and corresponding variance and confidence intervals.
 
