@@ -206,9 +206,9 @@ sve_var <- function(p0, p1, n0, n1, smooth, epsilon, level) {
         c("{.arg epsilon} is ignored when {.code smooth = FALSE}.",
           "i" = "Set {.code smooth = TRUE} to use the {.arg epsilon} parameter.")
       )
-      epsilon <- 0
+      epsilon <- rep(0, length(p0))
     }
-    epsilon <- 0
+    epsilon <- rep(0, length(p0))
   }
 
   result <- numeric(length(p0))
