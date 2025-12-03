@@ -5,7 +5,7 @@ Compute Variance of SVE via Delta Method
 ## Usage
 
 ``` r
-sve_var(p0, p1, n0, n1, smooth, epsilon, level)
+sve_var(p0, p1, n0, n1)
 ```
 
 ## Arguments
@@ -25,18 +25,6 @@ sve_var(p0, p1, n0, n1, smooth, epsilon, level)
 - n1:
 
   Sample size of vaccinated group
-
-- smooth:
-
-  Indicator for smoothing
-
-- epsilon:
-
-  Smoothing window
-
-- level:
-
-  confidence level (for smoothing)
 
 ## Value
 
