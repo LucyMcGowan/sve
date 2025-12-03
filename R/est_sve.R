@@ -172,6 +172,7 @@ sve <- function(p0, p1, n0, n1, correction) {
     bias <- ifelse(p0 > p1,
                    -(p1 * (1 - p0)) / (n0 * p0^2),
                    (p0 * (1 - p1)) / (n1 * p1^2))
+    bias <- ifelse(p0 == p1, 0, bias)
     sve <- sve - bias
   }
   return(sve)
