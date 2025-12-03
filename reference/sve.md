@@ -5,7 +5,7 @@ Compute SVE from Proportions
 ## Usage
 
 ``` r
-sve(p0, p1)
+sve(p0, p1, n0, n1, correction)
 ```
 
 ## Arguments
@@ -17,6 +17,18 @@ sve(p0, p1)
 - p1:
 
   Proportion in vaccinated group
+
+- n0:
+
+  Sample size of unvaccinated group
+
+- n1:
+
+  Sample size of vaccinated group
+
+- correction:
+
+  Whether to apply the bias correction
 
 ## Value
 

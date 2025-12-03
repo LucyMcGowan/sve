@@ -5,7 +5,7 @@ Computes profile likelihood CI for multiple sets of proportions.
 ## Usage
 
 ``` r
-sve_profile_ci(x0, x1, n0, n1, level = 0.95)
+sve_profile_ci(x0, x1, n0, n1, level = 0.95, correction = TRUE)
 ```
 
 ## Arguments
@@ -29,6 +29,10 @@ sve_profile_ci(x0, x1, n0, n1, level = 0.95)
 - level:
 
   Confidence level
+
+- correction:
+
+  Logical. Whether to perform a bias correction, default: `TRUE`.
 
 ## Value
 
