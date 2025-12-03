@@ -4,12 +4,18 @@
 \alias{sve}
 \title{Compute SVE from Proportions}
 \usage{
-sve(p0, p1)
+sve(p0, p1, n0, n1, correction)
 }
 \arguments{
 \item{p0}{Proportion in unvaccinated group}
 
 \item{p1}{Proportion in vaccinated group}
+
+\item{n0}{Sample size of unvaccinated group}
+
+\item{n1}{Sample size of vaccinated group}
+
+\item{correction}{Whether to apply the bias correction}
 }
 \value{
 Symmetric vaccine efficacy

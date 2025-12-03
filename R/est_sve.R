@@ -14,8 +14,8 @@
 #' @param x1 Numeric. Number of events in the vaccinated group.
 #' @param n0 Integer. Sample size of the unvaccinated group.
 #' @param n1 Integer. Sample size of the vaccinated group.
-#' @param level Confidence level for the interval (default is 0.95).
-#' @param method Method used to construct the confidence interval.
+#' @param level Numeric. Confidence level for the interval (default is 0.95).
+#' @param method Character. Method used to construct the confidence interval.
 #'
 #'   One of:
 #'
@@ -33,6 +33,7 @@
 #'     cases and inverting the conditional binomial distribution (Clopper-Pearson
 #'     limits for the conditional parameter). Conservative due to discreteness,
 #'     but reliable for small samples or boundary cases.
+#' @param correction Logical. Whether to perform a bias correction, default: `TRUE`.
 #'
 #' @return A data frame with the following columns:
 #' \describe{
@@ -77,7 +78,8 @@ est_sve <- function(x0,
                     n0,
                     n1,
                     level = 0.95,
-                    method = c("profile", "tanh-wald", "wald", "exact")) {
+                    method = c("profile", "tanh-wald", "wald", "exact"),
+                    correction = TRUE) {
   method <- match.arg(method)
   check_count_inputs(x0, x1, n0, n1)
   check_confidence_level(level)
@@ -85,11 +87,11 @@ est_sve <- function(x0,
   # Compute point estimates
   p0 <- x0 / n0
   p1 <- x1 / n1
-  sve_val <- sve(p0, p1)
+  sve_val <- sve(p0, p1, n0, n1, correction)
 
   # Profile likelihood method
   if (method == "profile") {
-    result <- sve_profile_ci(x0, x1, n0, n1, level)
+    result <- sve_profile_ci(x0, x1, n0, n1, level, correction)
     return(result)
   }
 
@@ -158,11 +160,21 @@ est_sve <- function(x0,
 #'
 #' @param p0 Proportion in unvaccinated group
 #' @param p1 Proportion in vaccinated group
+#' @param n0 Sample size of unvaccinated group
+#' @param n1 Sample size of vaccinated group
+#' @param correction Whether to apply the bias correction
 #' @return Symmetric vaccine efficacy
 #' @keywords internal
-sve <- function(p0, p1) {
+sve <- function(p0, p1, n0, n1, correction) {
   check_proportions(p0, p1)
-  (p0 - p1) / pmax(p0, p1)
+  sve <- (p0 - p1) / pmax(p0, p1)
+  if (correction) {
+    bias <- ifelse(p0 > p1,
+                   -(p1 * (1 - p0)) / (n0 * p0^2),
+                   (p0 * (1 - p1)) / (n1 * p1^2))
+    sve <- sve - bias
+  }
+  return(sve)
 }
 
 #' Compute Variance of SVE via Delta Method

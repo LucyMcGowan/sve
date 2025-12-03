@@ -150,9 +150,11 @@ sve_p0_bounds <- function(sve_target, tol = 1e-8) {
 #' @param n0 Sample size of unvaccinated group (scalar)
 #' @param n1 Sample size of vaccinated group (scalar)
 #' @param level Confidence level
+#' @param correction Logical. Whether to perform a bias correction, default: `TRUE`.
 #' @return List with estimate and CI bounds
 #' @keywords internal
-sve_profile_ci_single <- function(x0, x1, n0, n1, level = 0.95) {
+sve_profile_ci_single <- function(x0, x1, n0, n1, level = 0.95,
+                                  correction = TRUE) {
   # Handle edge cases where both groups have 0 or all events
   if (x0 == 0 && x1 == 0) {
     return(list(estimate = 0, lower = -1, upper = 1))
@@ -164,7 +166,7 @@ sve_profile_ci_single <- function(x0, x1, n0, n1, level = 0.95) {
   # Compute MLEs
   p0_hat <- x0 / n0
   p1_hat <- x1 / n1
-  sve_hat <- sve(p0_hat, p1_hat)
+  sve_hat <- sve(p0_hat, p1_hat, n0, n1, correction)
 
   # Unconstrained MLE log-likelihood
   ll_unconstrained <- two_sample_binomial_loglik(x0, x1, n0, n1, p0_hat, p1_hat)
@@ -216,16 +218,17 @@ sve_profile_ci_single <- function(x0, x1, n0, n1, level = 0.95) {
 #' @param n0 Sample size of unvaccinated group (vector)
 #' @param n1 Sample size of vaccinated group (vector)
 #' @param level Confidence level
+#' @param correction Logical. Whether to perform a bias correction, default: `TRUE`.
 #' @return Data frame with estimate and CI bounds
 #' @keywords internal
-sve_profile_ci <- function(x0, x1, n0, n1, level = 0.95) {
+sve_profile_ci <- function(x0, x1, n0, n1, level = 0.95, correction = TRUE) {
   n <- length(x0)
   estimates <- numeric(n)
   lowers <- numeric(n)
   uppers <- numeric(n)
 
   for (i in seq_len(n)) {
-    result <- sve_profile_ci_single(x0[i], x1[i], n0[i], n1[i], level)
+    result <- sve_profile_ci_single(x0[i], x1[i], n0[i], n1[i], level, correction)
     estimates[i] <- result$estimate
     lowers[i] <- result$lower
     uppers[i] <- result$upper

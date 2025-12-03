@@ -42,7 +42,8 @@ test_that("sve_to_p1 correctly computes p1 from p0 and SVE", {
 test_that("sve_profile_ci handles moderate efficacy", {
   result <- sve_profile_ci(
     x0 = 100, x1 = 50, n0 = 1000, n1 = 1000,
-    level = 0.95
+    level = 0.95,
+    correction = FALSE
   )
 
   expect_equal(result$estimate, 0.5)
@@ -56,7 +57,8 @@ test_that("sve_profile_ci handles moderate efficacy", {
 test_that("sve_profile_ci handles high efficacy", {
   result <- sve_profile_ci(
     x0 = 100, x1 = 5, n0 = 1000, n1 = 1000,
-    level = 0.95
+    level = 0.95,
+    correction = FALSE
   )
 
   expect_gt(result$estimate, 0.9)
@@ -68,7 +70,8 @@ test_that("sve_profile_ci handles high efficacy", {
 test_that("sve_profile_ci handles harmful effects", {
   result <- sve_profile_ci(
     x0 = 50, x1 = 100, n0 = 1000, n1 = 1000,
-    level = 0.95
+    level = 0.95,
+    correction = FALSE
   )
 
   expect_equal(result$estimate, -0.5)

@@ -10,7 +10,8 @@ est_sve(
   n0,
   n1,
   level = 0.95,
-  method = c("profile", "tanh-wald", "wald", "exact")
+  method = c("profile", "tanh-wald", "wald", "exact"),
+  correction = TRUE
 )
 }
 \arguments{
@@ -22,9 +23,9 @@ est_sve(
 
 \item{n1}{Integer. Sample size of the vaccinated group.}
 
-\item{level}{Confidence level for the interval (default is 0.95).}
+\item{level}{Numeric. Confidence level for the interval (default is 0.95).}
 
-\item{method}{Method used to construct the confidence interval.
+\item{method}{Character. Method used to construct the confidence interval.
 
 One of:
 \itemize{
@@ -40,6 +41,8 @@ cases and inverting the conditional binomial distribution (Clopper-Pearson
 limits for the conditional parameter). Conservative due to discreteness,
 but reliable for small samples or boundary cases.
 }}
+
+\item{correction}{Logical. Whether to perform a bias correction, default: \code{TRUE}.}
 }
 \value{
 A data frame with the following columns:

@@ -11,15 +11,15 @@ test_that("est_sve validates inputs", {
 
 test_that("est_sve computes correct SVE transformations", {
   # Protective effect: p0 > p1
-  result <- est_sve(x0 = 100, x1 = 50, n0 = 1000, n1 = 1000)
+  result <- est_sve(x0 = 100, x1 = 50, n0 = 1000, n1 = 1000, correction = FALSE)
   expect_equal(result$estimate, 0.5)
 
   # Null effect: p0 = p1
-  result_null <- est_sve(x0 = 100, x1 = 100, n0 = 1000, n1 = 1000)
+  result_null <- est_sve(x0 = 100, x1 = 100, n0 = 1000, n1 = 1000, correction = FALSE)
   expect_equal(result_null$estimate, 0)
 
   # Harmful effect: p0 < p1
-  result_harm <- est_sve(x0 = 50, x1 = 100, n0 = 1000, n1 = 1000)
+  result_harm <- est_sve(x0 = 50, x1 = 100, n0 = 1000, n1 = 1000, correction = FALSE)
   expect_equal(result_harm$estimate, -0.5)
 })
 
