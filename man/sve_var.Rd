@@ -4,7 +4,7 @@
 \alias{sve_var}
 \title{Compute Variance of SVE via Delta Method}
 \usage{
-sve_var(p0, p1, n0, n1, smooth, epsilon, level)
+sve_var(p0, p1, n0, n1)
 }
 \arguments{
 \item{p0}{Proportion in unvaccinated group}
@@ -14,12 +14,6 @@ sve_var(p0, p1, n0, n1, smooth, epsilon, level)
 \item{n0}{Sample size of unvaccinated group}
 
 \item{n1}{Sample size of vaccinated group}
-
-\item{smooth}{Indicator for smoothing}
-
-\item{epsilon}{Smoothing window}
-
-\item{level}{confidence level (for smoothing)}
 }
 \value{
 Variance of SVE

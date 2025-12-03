@@ -64,22 +64,4 @@ test_that("est_sve tanh-wald keeps bounds strictly in (-1, 1)", {
   expect_lt(result$upper, 1)
 })
 
-test_that("est_sve smooth parameter controls variance smoothing", {
-  # Near null case where smoothing matters
-  result_smooth <- est_sve(x0 = 100, x1 = 95, n0 = 1000, n1 = 1000,
-                           method = "wald", smooth = TRUE)
-  result_no_smooth <- est_sve(x0 = 100, x1 = 95, n0 = 1000, n1 = 1000,
-                              method = "wald", smooth = FALSE)
-
-  # Smoothing should affect the CI width near null
-  expect_false(isTRUE(all.equal(result_smooth$lower, result_no_smooth$lower)))
-})
-
-test_that("est_sve warns when epsilon provided but smooth = FALSE", {
-  expect_warning(
-    est_sve(x0 = 100, x1 = 50, n0 = 1000, n1 = 1000,
-            method = "wald", smooth = FALSE, epsilon = 0.1),
-    "epsilon.*ignored.*smooth = FALSE"
-  )
-})
 

@@ -33,17 +33,6 @@
 #'     cases and inverting the conditional binomial distribution (Clopper-Pearson
 #'     limits for the conditional parameter). Conservative due to discreteness,
 #'     but reliable for small samples or boundary cases.
-#' @param smooth Logical. Should variance smoothing be applied near the null?
-#'     Default is TRUE. Only used for Wald-based methods (`wald`, `tanh-wald`).
-#'     Ignored for profile likelihood. Recommended to avoid instability when
-#'     effect is near 1.
-#' @param epsilon Numeric. The smoothing window. Only used for Wald-based
-#'   methods (`wald`, `tanh-wald`) when `smooth = TRUE`. If `NULL` and
-#'   `smooth = TRUE`, defaults to \eqn{z_{\alpha/2}
-#'   \sqrt{\hat{p}_0(1-\hat{p}_0)/n_0 + \hat{p}_1(1-\hat{p}_1)/n_1}}
-#'   where \eqn{\hat{p}_0 = x_0/n_0}, \eqn{\hat{p}_1 = x_1/n_1}, and
-#'   \eqn{z_{\alpha/2}} is the critical value from the standard normal
-#'   distribution corresponding to the confidence level.
 #'
 #' @return A data frame with the following columns:
 #' \describe{
@@ -88,9 +77,7 @@ est_sve <- function(x0,
                     n0,
                     n1,
                     level = 0.95,
-                    method = c("profile", "tanh-wald", "wald", "exact"),
-                    smooth = TRUE,
-                    epsilon = NULL) {
+                    method = c("profile", "tanh-wald", "wald", "exact")) {
   method <- match.arg(method)
   check_count_inputs(x0, x1, n0, n1)
   check_confidence_level(level)
@@ -135,7 +122,7 @@ est_sve <- function(x0,
     method_label <- "Exact"
   } else if (method == "tanh-wald") {
     z_val <- atanh(sve_val)
-    var_sve <- sve_var(p0, p1, n0, n1, smooth, epsilon, level)
+    var_sve <- sve_var(p0, p1, n0, n1)
     var_z <- var_sve / (1 - sve_val^2)^2
     se_z <- sqrt(var_z)
 
@@ -148,7 +135,7 @@ est_sve <- function(x0,
 
     method_label <- "tanh-Wald"
   } else {
-    var_sve <- sve_var(p0, p1, n0, n1, smooth, epsilon, level)
+    var_sve <- sve_var(p0, p1, n0, n1)
     se_sve <- sqrt(var_sve)
 
     z_crit <- stats::qnorm(1 - (1 - level) / 2)
@@ -184,42 +171,22 @@ sve <- function(p0, p1) {
 #' @param p1 Proportion in vaccinated group
 #' @param n0 Sample size of unvaccinated group
 #' @param n1 Sample size of vaccinated group
-#' @param smooth Indicator for smoothing
-#' @param epsilon Smoothing window
-#' @param level confidence level (for smoothing)
 #' @return Variance of SVE
 #' @keywords internal
-sve_var <- function(p0, p1, n0, n1, smooth, epsilon, level) {
+sve_var <- function(p0, p1, n0, n1) {
   check_proportions(p0, p1)
 
   sigma0 <- p0 * (1 - p0) / n0
   sigma1 <- p1 * (1 - p1) / n1
 
-  if (smooth) {
-    if (is.null(epsilon)) {
-      c <- stats::qnorm(1 - (1 - level) / 2)
-      epsilon <- c * sqrt(sigma0 + sigma1)
-    }
-  } else {
-    if (!is.null(epsilon)) {
-      cli::cli_warn(
-        c("{.arg epsilon} is ignored when {.code smooth = FALSE}.",
-          "i" = "Set {.code smooth = TRUE} to use the {.arg epsilon} parameter.")
-      )
-      epsilon <- rep(0, length(p0))
-    }
-    epsilon <- rep(0, length(p0))
-  }
-
   result <- numeric(length(p0))
   abs_diff <- abs(p0 - p1)
 
   # Identify regions
-  idx_smooth <- abs_diff <= epsilon
-  idx_p0_gt_p1 <- (p0 > p1) & !idx_smooth
-  idx_p1_gt_p0 <- (p1 > p0) & !idx_smooth
+  idx_p0_gt_p1 <- (p0 >= p1)
+  idx_p1_gt_p0 <- (p1 > p0)
 
-  # Case 1: p0 > p1 and |p0 - p1| > epsilon
+  # Case 1: p0 > p1
   if (any(idx_p0_gt_p1)) {
     result[idx_p0_gt_p1] <- (
       p1[idx_p0_gt_p1]^2 * sigma0[idx_p0_gt_p1] +
@@ -227,20 +194,12 @@ sve_var <- function(p0, p1, n0, n1, smooth, epsilon, level) {
     ) / p0[idx_p0_gt_p1]^4
   }
 
-  # Case 2: p1 > p0 and |p0 - p1| > epsilon
+  # Case 2: p1 > p0
   if (any(idx_p1_gt_p0)) {
     result[idx_p1_gt_p0] <- (
       p1[idx_p1_gt_p0]^2 * sigma0[idx_p1_gt_p0] +
         p0[idx_p1_gt_p0]^2 * sigma1[idx_p1_gt_p0]
     ) / p1[idx_p1_gt_p0]^4
   }
-
-  # Case 3: |p0 - p1| <= epsilon (smoothing region)
-  if (any(idx_smooth)) {
-    p_avg <- (p0[idx_smooth] + p1[idx_smooth]) / 2
-    result[idx_smooth] <- (sigma0[idx_smooth] + sigma1[idx_smooth]) /
-      (p_avg + epsilon[idx_smooth] / 4)^2
-  }
-
   result
 }
