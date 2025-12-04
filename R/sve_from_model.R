@@ -24,17 +24,6 @@
 #'     Uses the variance extracted from the model.
 #'
 #'   * `"wald"`: Standard Wald interval on the untransformed scale.
-#' @param smooth Logical. Should variance smoothing be applied near the null?
-#'     Default is TRUE. Only used for Wald-based methods (`wald`, `tanh-wald`).
-#'     Ignored for profile likelihood. Recommended to avoid instability when
-#'     effect is near 1.
-#' @param epsilon Numeric. The smoothing window. Only used for Wald-based
-#'   methods (`wald`, `tanh-wald`) when `smooth = TRUE`. If `NULL` and
-#'   `smooth = TRUE`, defaults to \eqn{z_{\alpha/2}
-#'   \sqrt{\hat{p}_0(1-\hat{p}_0)/n_0 + \hat{p}_1(1-\hat{p}_1)/n_1}}
-#'   where \eqn{\hat{p}_0 = x_0/n_0}, \eqn{\hat{p}_1 = x_1/n_1}, and
-#'   \eqn{z_{\alpha/2}} is the critical value from the standard normal
-#'   distribution corresponding to the confidence level.
 #'
 #' @return A data frame with the following columns:
 #' \describe{
@@ -82,9 +71,7 @@ sve_from_model <- function(model,
                            effect_name,
                            data = NULL,
                            level = 0.95,
-                           method = c("profile", "tanh-wald", "wald"),
-                           smooth = TRUE,
-                           epsilon = NULL) {
+                           method = c("profile", "tanh-wald", "wald")) {
   method <- match.arg(method)
   check_confidence_level(level)
 
@@ -134,9 +121,7 @@ sve_from_model <- function(model,
       theta = theta_hat,
       var_log_theta = var_beta,
       method = method,
-      level = level,
-      smooth = smooth,
-      epsilon = epsilon
+      level = level
     )
   }
 

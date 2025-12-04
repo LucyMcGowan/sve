@@ -11,7 +11,7 @@ est_sve(
   n1,
   level = 0.95,
   method = c("profile", "tanh-wald", "wald", "exact"),
-  correction = TRUE
+  correction = FALSE
 )
 }
 \arguments{
@@ -42,7 +42,7 @@ limits for the conditional parameter). Conservative due to discreteness,
 but reliable for small samples or boundary cases.
 }}
 
-\item{correction}{Logical. Whether to perform a bias correction, default: \code{TRUE}.}
+\item{correction}{Logical. Whether to perform a bias correction, default: \code{FALSE}.}
 }
 \value{
 A data frame with the following columns:

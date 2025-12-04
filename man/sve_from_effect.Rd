@@ -8,9 +8,7 @@ sve_from_effect(
   theta,
   var_log_theta,
   level = 0.95,
-  method = c("profile", "tanh-wald", "wald"),
-  smooth = TRUE,
-  epsilon = NULL
+  method = c("profile", "tanh-wald", "wald")
 )
 }
 \arguments{
@@ -37,19 +35,6 @@ transform before forming the Wald interval, then transforms back.
 Improves coverage when the estimate is near +/- 1.
 \item \code{"wald"}: Standard Wald interval on the untransformed scale.
 }}
-
-\item{smooth}{Logical. Should variance smoothing be applied near the null?
-Default is TRUE. Only used for Wald-based methods (\code{wald}, \code{tanh-wald}).
-Ignored for profile likelihood. Recommended to avoid instability when
-effect is near 1.}
-
-\item{epsilon}{Numeric. The smoothing window. Only used for Wald-based
-methods (\code{wald}, \code{tanh-wald}) when \code{smooth = TRUE}. If \code{NULL} and
-\code{smooth = TRUE}, defaults to \eqn{z_{\alpha/2}
-  \sqrt{\hat{p}_0(1-\hat{p}_0)/n_0 + \hat{p}_1(1-\hat{p}_1)/n_1}}
-where \eqn{\hat{p}_0 = x_0/n_0}, \eqn{\hat{p}_1 = x_1/n_1}, and
-\eqn{z_{\alpha/2}} is the critical value from the standard normal
-distribution corresponding to the confidence level.}
 }
 \value{
 A data frame with the following columns:

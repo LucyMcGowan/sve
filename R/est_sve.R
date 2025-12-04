@@ -33,7 +33,7 @@
 #'     cases and inverting the conditional binomial distribution (Clopper-Pearson
 #'     limits for the conditional parameter). Conservative due to discreteness,
 #'     but reliable for small samples or boundary cases.
-#' @param correction Logical. Whether to perform a bias correction, default: `TRUE`.
+#' @param correction Logical. Whether to perform a bias correction, default: `FALSE`.
 #'
 #' @return A data frame with the following columns:
 #' \describe{
@@ -79,7 +79,7 @@ est_sve <- function(x0,
                     n1,
                     level = 0.95,
                     method = c("profile", "tanh-wald", "wald", "exact"),
-                    correction = TRUE) {
+                    correction = FALSE) {
   method <- match.arg(method)
   check_count_inputs(x0, x1, n0, n1)
   check_confidence_level(level)

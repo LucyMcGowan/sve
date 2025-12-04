@@ -25,17 +25,6 @@
 #'     Improves coverage when the estimate is near +/- 1.
 #'
 #'   * `"wald"`: Standard Wald interval on the untransformed scale.
-#' @param smooth Logical. Should variance smoothing be applied near the null?
-#'     Default is TRUE. Only used for Wald-based methods (`wald`, `tanh-wald`).
-#'     Ignored for profile likelihood. Recommended to avoid instability when
-#'     effect is near 1.
-#' @param epsilon Numeric. The smoothing window. Only used for Wald-based
-#'   methods (`wald`, `tanh-wald`) when `smooth = TRUE`. If `NULL` and
-#'   `smooth = TRUE`, defaults to \eqn{z_{\alpha/2}
-#'   \sqrt{\hat{p}_0(1-\hat{p}_0)/n_0 + \hat{p}_1(1-\hat{p}_1)/n_1}}
-#'   where \eqn{\hat{p}_0 = x_0/n_0}, \eqn{\hat{p}_1 = x_1/n_1}, and
-#'   \eqn{z_{\alpha/2}} is the critical value from the standard normal
-#'   distribution corresponding to the confidence level.
 #'
 #' @return A data frame with the following columns:
 #' \describe{
@@ -85,9 +74,7 @@
 sve_from_effect <- function(theta,
                             var_log_theta,
                             level = 0.95,
-                            method = c("profile", "tanh-wald", "wald"),
-                            smooth = TRUE,
-                            epsilon = NULL) {
+                            method = c("profile", "tanh-wald", "wald")) {
   method <- match.arg(method)
   check_confidence_level(level)
   check_theta(theta, var_log_theta)
@@ -100,7 +87,7 @@ sve_from_effect <- function(theta,
     upper <- result$upper
   } else {
     # Wald-based methods
-    var_sve <- sve_var_effect(theta, var_log_theta, smooth, epsilon, level)
+    var_sve <- sve_var_effect(theta, var_log_theta, level)
 
     if (method == "tanh-wald") {
       z_val <- atanh(sve_val)
@@ -151,59 +138,25 @@ sve_effect <- function(theta) {
 #'
 #' @param theta Relative effect measure
 #' @param var_log_theta Variance of log(theta)
-#' @param smooth Logical. Should variance smoothing be applied near the null?
-#'     Default is TRUE. Only used for Wald-based methods (`wald`, `tanh-wald`).
-#'     Ignored for profile likelihood. Recommended to avoid instability when
-#'     effect is near 1.
-#' @param epsilon Numeric. The smoothing window. Only used for Wald-based
-#'   methods (`wald`, `tanh-wald`) when `smooth = TRUE`. If `NULL` and
-#'   `smooth = TRUE`, defaults to \eqn{z_{\alpha/2}
-#'   \sqrt{\hat{p}_0(1-\hat{p}_0)/n_0 + \hat{p}_1(1-\hat{p}_1)/n_1}}
-#'   where \eqn{\hat{p}_0 = x_0/n_0}, \eqn{\hat{p}_1 = x_1/n_1}, and
-#'   \eqn{z_{\alpha/2}} is the critical value from the standard normal
-#'   distribution corresponding to the confidence level.
 #' @return Variance of SVE
 #' @keywords internal
-sve_var_effect <- function(theta, var_log_theta, smooth, epsilon, level) {
-  if (smooth) {
-    if (is.null(epsilon)) {
-      c <- stats::qnorm(1 - (1 - level) / 2)
-      epsilon <- c * sqrt(var_log_theta)
-    }
-  } else {
-    if (!is.null(epsilon)) {
-      cli::cli_warn(
-        c("{.arg epsilon} is ignored when {.code smooth = FALSE}.",
-          "i" = "Set {.code smooth = TRUE} to use the {.arg epsilon} parameter.")
-      )
-      epsilon <- 0
-    }
-    epsilon <- 0
-  }
+sve_var_effect <- function(theta, var_log_theta, level) {
+
   result <- numeric(length(theta))
 
   abs_diff <- abs(1 - theta)
 
   # Identify regions
-  idx_smooth <- abs_diff <= epsilon
-  idx_protective <- (theta < 1) & !idx_smooth
-  idx_harmful <- (theta > 1) & !idx_smooth
+  idx_protective <- (theta <= 1)
+  idx_harmful <- (theta > 1)
 
-  # Case 1: theta < 1 (protective) and |1 - theta| > epsilon
+  # Case 1: theta < 1 (protective)
   # d(SVE)/d(phi) = -theta
   result[idx_protective] <- theta[idx_protective]^2 * var_log_theta[idx_protective]
 
-  # Case 2: theta > 1 (harmful) and |1 - theta| > epsilon
+  # Case 2: theta > 1 (harmful)
   # d(SVE)/d(phi) = -1/theta
   result[idx_harmful] <- (1 / theta[idx_harmful])^2 * var_log_theta[idx_harmful]
-
-  # Case 3: |1 - theta| <= epsilon (near null)
-  # d(SVE)/d(phi) = -2*theta / (1 + theta + epsilon/2)
-  if (any(idx_smooth)) {
-    deriv_smooth <- -2 * theta[idx_smooth] /
-      (1 + theta[idx_smooth] + epsilon[idx_smooth] / 2)
-    result[idx_smooth] <- deriv_smooth^2 * var_log_theta[idx_smooth]
-  }
 
   result
 }

@@ -4,25 +4,12 @@
 \alias{sve_var_effect}
 \title{Compute Variance of SVE via Delta Method}
 \usage{
-sve_var_effect(theta, var_log_theta, smooth, epsilon, level)
+sve_var_effect(theta, var_log_theta, level)
 }
 \arguments{
 \item{theta}{Relative effect measure}
 
 \item{var_log_theta}{Variance of log(theta)}
-
-\item{smooth}{Logical. Should variance smoothing be applied near the null?
-Default is TRUE. Only used for Wald-based methods (\code{wald}, \code{tanh-wald}).
-Ignored for profile likelihood. Recommended to avoid instability when
-effect is near 1.}
-
-\item{epsilon}{Numeric. The smoothing window. Only used for Wald-based
-methods (\code{wald}, \code{tanh-wald}) when \code{smooth = TRUE}. If \code{NULL} and
-\code{smooth = TRUE}, defaults to \eqn{z_{\alpha/2}
-  \sqrt{\hat{p}_0(1-\hat{p}_0)/n_0 + \hat{p}_1(1-\hat{p}_1)/n_1}}
-where \eqn{\hat{p}_0 = x_0/n_0}, \eqn{\hat{p}_1 = x_1/n_1}, and
-\eqn{z_{\alpha/2}} is the critical value from the standard normal
-distribution corresponding to the confidence level.}
 }
 \value{
 Variance of SVE

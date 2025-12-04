@@ -4,7 +4,7 @@
 \alias{sve_profile_ci}
 \title{Profile Likelihood Confidence Interval for SVE (Vectorized)}
 \usage{
-sve_profile_ci(x0, x1, n0, n1, level = 0.95, correction = TRUE)
+sve_profile_ci(x0, x1, n0, n1, level = 0.95, correction = FALSE)
 }
 \arguments{
 \item{x0}{Number of events in unvaccinated group (vector)}
@@ -17,7 +17,7 @@ sve_profile_ci(x0, x1, n0, n1, level = 0.95, correction = TRUE)
 
 \item{level}{Confidence level}
 
-\item{correction}{Logical. Whether to perform a bias correction, default: \code{TRUE}.}
+\item{correction}{Logical. Whether to perform a bias correction, default: \code{FALSE}.}
 }
 \value{
 Data frame with estimate and CI bounds
