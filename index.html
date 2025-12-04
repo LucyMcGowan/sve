@@ -78,15 +78,16 @@
 <span>        n1 <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   estimate      lower     upper level  method</span></span>
 <span><span class="co">#&gt; 1      0.5 -0.2865842 0.8437684  0.95 Profile</span></span></code></pre></div>
-<p>By default, confidence intervals are calculated using the profile likelihood method. To calculate Wald-type intervals on a transformed scale and then back-transformed in order to ensure that they remain between -1 and 1 use <code>method = "tanh-wald"</code>. If you do not want to use this transformation, you can set the option <code>method = "wald"</code>:</p>
+<p>By default, confidence intervals are calculated using the profile likelihood method. To calculate Wald-type intervals on a transformed scale and then back-transformed in order to ensure that they remain between -1 and 1 use <code>method = "tanh-wald"</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/est_sve.html">est_sve</a></span><span class="op">(</span>x0 <span class="op">=</span> <span class="fl">10</span>, </span>
 <span>        x1 <span class="op">=</span> <span class="fl">5</span>, </span>
 <span>        n0 <span class="op">=</span> <span class="fl">1000</span>, </span>
 <span>        n1 <span class="op">=</span> <span class="fl">1000</span>,</span>
-<span>        method <span class="op">=</span> <span class="st">"wald"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   estimate      lower    upper level method</span></span>
-<span><span class="co">#&gt; 1      0.5 -0.3050449 1.305045  0.95   Wald</span></span></code></pre></div>
+<span>        method <span class="op">=</span> <span class="st">"tanh-wald"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   estimate      lower     upper level    method</span></span>
+<span><span class="co">#&gt; 1      0.5 -0.1625277 0.8517777  0.95 tanh-Wald</span></span></code></pre></div>
+<p>If you would like Wald-type intervals and do not want to use this transformation, you can set the option <code>method = "wald"</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="using-relative-effect-measures">Using relative effect measures<a class="anchor" aria-label="anchor" href="#using-relative-effect-measures"></a>

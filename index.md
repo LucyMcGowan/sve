@@ -41,18 +41,20 @@ est_sve(x0 = 10,
 By default, confidence intervals are calculated using the profile
 likelihood method. To calculate Wald-type intervals on a transformed
 scale and then back-transformed in order to ensure that they remain
-between -1 and 1 use `method = "tanh-wald"`. If you do not want to use
-this transformation, you can set the option `method = "wald"`:
+between -1 and 1 use `method = "tanh-wald"`:
 
 ``` r
 est_sve(x0 = 10, 
         x1 = 5, 
         n0 = 1000, 
         n1 = 1000,
-        method = "wald")
-#>   estimate      lower    upper level method
-#> 1      0.5 -0.3050449 1.305045  0.95   Wald
+        method = "tanh-wald")
+#>   estimate      lower     upper level    method
+#> 1      0.5 -0.1625277 0.8517777  0.95 tanh-Wald
 ```
+
+If you would like Wald-type intervals and do not want to use this
+transformation, you can set the option `method = "wald"`.
 
 ## Using relative effect measures
 
