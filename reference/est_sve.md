@@ -14,7 +14,7 @@ est_sve(
   n1,
   level = 0.95,
   method = c("profile", "tanh-wald", "wald", "exact"),
-  correction = TRUE
+  correction = FALSE
 )
 ```
 
@@ -64,7 +64,7 @@ est_sve(
 
 - correction:
 
-  Logical. Whether to perform a bias correction, default: `TRUE`.
+  Logical. Whether to perform a bias correction, default: `FALSE`.
 
 ## Value
 
@@ -115,21 +115,21 @@ likelihood to the unconstrained MLE.
 # Profile likelihood method
 est_sve(x0 = 10, x1 = 5, n0 = 100, n1 = 100, method = "profile")
 #>   estimate      lower     upper level  method
-#> 1    0.545 -0.2614476 0.8394814  0.95 Profile
+#> 1      0.5 -0.2614476 0.8394814  0.95 Profile
 
 # Wald (tanh-Wald)
 est_sve(x0 = 100, x1 = 50, n0 = 1000, n1 = 1000, method = "tanh-wald")
 #>   estimate     lower     upper level    method
-#> 1   0.5045 0.3233246 0.6499968  0.95 tanh-Wald
+#> 1      0.5 0.3191164 0.6457354  0.95 tanh-Wald
 
 # Without transform (uses Wald interval)
 est_sve(x0 = 100, x1 = 50, n0 = 1000, n1 = 1000, method = "wald")
 #>   estimate     lower     upper level method
-#> 1   0.5045 0.3405176 0.6684824  0.95   Wald
+#> 1      0.5 0.3360176 0.6639824  0.95   Wald
 
 # Exact method for small samples
 est_sve(x0 = 10, x1 = 5, n0 = 100, n1 = 100, method = "exact")
 #>   estimate      lower     upper level method
-#> 1    0.545 -0.3771404 0.8659031  0.95  Exact
+#> 1      0.5 -0.3771404 0.8659031  0.95  Exact
 
 ```

@@ -50,7 +50,7 @@ unvaccinated groups.</p>
 <span>  <span class="va">n1</span>,</span>
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"profile"</span>, <span class="st">"tanh-wald"</span>, <span class="st">"wald"</span>, <span class="st">"exact"</span><span class="op">)</span>,</span>
-<span>  correction <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  correction <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -95,7 +95,7 @@ but reliable for small samples or boundary cases.</p></li>
 
 
 <dt id="arg-correction">correction<a class="anchor" aria-label="anchor" href="#arg-correction"></a></dt>
-<dd><p>Logical. Whether to perform a bias correction, default: <code>TRUE</code>.</p></dd>
+<dd><p>Logical. Whether to perform a bias correction, default: <code>FALSE</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -142,22 +142,22 @@ to the unconstrained MLE.</p>
 <span class="r-in"><span><span class="co"># Profile likelihood method</span></span></span>
 <span class="r-in"><span><span class="fu">est_sve</span><span class="op">(</span>x0 <span class="op">=</span> <span class="fl">10</span>, x1 <span class="op">=</span> <span class="fl">5</span>, n0 <span class="op">=</span> <span class="fl">100</span>, n1 <span class="op">=</span> <span class="fl">100</span>, method <span class="op">=</span> <span class="st">"profile"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate      lower     upper level  method</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    0.545 -0.2614476 0.8394814  0.95 Profile</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.5 -0.2614476 0.8394814  0.95 Profile</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Wald (tanh-Wald)</span></span></span>
 <span class="r-in"><span><span class="fu">est_sve</span><span class="op">(</span>x0 <span class="op">=</span> <span class="fl">100</span>, x1 <span class="op">=</span> <span class="fl">50</span>, n0 <span class="op">=</span> <span class="fl">1000</span>, n1 <span class="op">=</span> <span class="fl">1000</span>, method <span class="op">=</span> <span class="st">"tanh-wald"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate     lower     upper level    method</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   0.5045 0.3233246 0.6499968  0.95 tanh-Wald</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.5 0.3191164 0.6457354  0.95 tanh-Wald</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Without transform (uses Wald interval)</span></span></span>
 <span class="r-in"><span><span class="fu">est_sve</span><span class="op">(</span>x0 <span class="op">=</span> <span class="fl">100</span>, x1 <span class="op">=</span> <span class="fl">50</span>, n0 <span class="op">=</span> <span class="fl">1000</span>, n1 <span class="op">=</span> <span class="fl">1000</span>, method <span class="op">=</span> <span class="st">"wald"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate     lower     upper level method</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   0.5045 0.3405176 0.6684824  0.95   Wald</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.5 0.3360176 0.6639824  0.95   Wald</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Exact method for small samples</span></span></span>
 <span class="r-in"><span><span class="fu">est_sve</span><span class="op">(</span>x0 <span class="op">=</span> <span class="fl">10</span>, x1 <span class="op">=</span> <span class="fl">5</span>, n0 <span class="op">=</span> <span class="fl">100</span>, n1 <span class="op">=</span> <span class="fl">100</span>, method <span class="op">=</span> <span class="st">"exact"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate      lower     upper level method</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    0.545 -0.3771404 0.8659031  0.95  Exact</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.5 -0.3771404 0.8659031  0.95  Exact</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

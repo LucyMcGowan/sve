@@ -37,7 +37,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sve_var_effect</span><span class="op">(</span><span class="va">theta</span>, <span class="va">var_log_theta</span>, <span class="va">smooth</span>, <span class="va">epsilon</span>, <span class="va">level</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sve_var_effect</span><span class="op">(</span><span class="va">theta</span>, <span class="va">var_log_theta</span>, <span class="va">level</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -50,23 +50,6 @@
 
 <dt id="arg-var-log-theta">var_log_theta<a class="anchor" aria-label="anchor" href="#arg-var-log-theta"></a></dt>
 <dd><p>Variance of log(theta)</p></dd>
-
-
-<dt id="arg-smooth">smooth<a class="anchor" aria-label="anchor" href="#arg-smooth"></a></dt>
-<dd><p>Logical. Should variance smoothing be applied near the null?
-Default is TRUE. Only used for Wald-based methods (<code>wald</code>, <code>tanh-wald</code>).
-Ignored for profile likelihood. Recommended to avoid instability when
-effect is near 1.</p></dd>
-
-
-<dt id="arg-epsilon">epsilon<a class="anchor" aria-label="anchor" href="#arg-epsilon"></a></dt>
-<dd><p>Numeric. The smoothing window. Only used for Wald-based
-methods (<code>wald</code>, <code>tanh-wald</code>) when <code>smooth = TRUE</code>. If <code>NULL</code> and
-<code>smooth = TRUE</code>, defaults to \(z_{\alpha/2}
-  \sqrt{\hat{p}_0(1-\hat{p}_0)/n_0 + \hat{p}_1(1-\hat{p}_1)/n_1}\)
-where \(\hat{p}_0 = x_0/n_0\), \(\hat{p}_1 = x_1/n_1\), and
-\(z_{\alpha/2}\) is the critical value from the standard normal
-distribution corresponding to the confidence level.</p></dd>
 
 </dl></div>
     <div class="section level2">
